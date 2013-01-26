@@ -1,0 +1,53 @@
+@charset "utf-8";
+/* CSS Document */
+body{  font-family: "Helvetica Neue", Helvetica, Arial; margin:0px; padding:0px; font-size:12px; background:url(../images/bg.jpg) repeat-x 0 -15px; min-height:115px;  }
+a{ text-decoration:none; color:#333;}
+a:hover{ text-decoration:underline;}
+.cl{ clear:both;}
+
+
+.alert{ padding:13px 0px 0px 0px; width:100%; float:left; }
+H1{ color:#02adeb; font-size:14px;   margin:0; padding-left:50px; }
+
+
+.merchant{  padding:5px 8px 12px; width:100px;  text-align:center; float:left; margin-left:5px;}
+.merchantLogo{  background: none repeat scroll 0 0 #FFFFFF; border: 1px solid #999da1; border-radius: 3px; box-shadow: 0 0px 5px #b6c6ce;  padding: 1px;width: 100px; margin-bottom:5px; float:left; margin-right:10px}
+.merchant a{  font-size:10px; color:#767676; line-height:12px;}
+.merchant{font-size:10px;}
+.merchantName{padding:0 0 3px; margin:0 5px; border-top:1px solid #c7c7c7;  margin-top:3px; padding-top:3px; }
+
+
+.couponCode{ position:relative; padding:5px 0 6px;line-height: 22px;}
+.coupon{ padding:4px 0px 12px;line-height:22px; width:170px; float:right;}
+.coupon span a{ color:#04ace9; font-size:14px; font-weight:bold;}
+.coupon a{ font-size:16px; color:#1ab2e9;}
+a.couponTitle{  font-family: Georgia; color:#0397D6;  padding-bottom:5px; float:left;}
+.code{ color:#6F7072; font-size:11px;}
+
+
+.codeL{ width:5px; height:13px; padding:5px 0 5px 5px;font-size:20px;}
+.codeR{  width:15px; height:15px; padding:5px 0px 5px 0px;  font-size:20px;}
+.codeM{  color:#fff;  font-size:12px; padding:5px 8px 5px 6px;  text-align:right; }
+
+
+.codeL{background:url(../images/icons.png) no-repeat -9px -158px; position:absolute; left:-1px;top:0px;}
+.codeR{background:url(../images/icons.png) no-repeat 0 -131px; position:absolute; right:-12px;top:0px;}
+.codeM{background:url(../images/icons.png) repeat-x 0 -183px; white-space:nowrap;}
+
+
+#facebook .alert{  padding:0px 10px 0px; min-height:auto; }
+#facebook H1{ color:#17a0e3; font-size:16px;  height:35px; line-height:38px; font-family:Georgia; margin:0;  padding: 0 0 0 0px;}
+
+#facebook p{ font-size:12px; line-height:18px; margin:0;padding: 0 0px;}
+#facebook .join{ border-radius:0 0 3px 3px; clear:both; padding:5px 0; margin-bottom:8px; width:100%; float:left; border-top:6px solid #fff; }
+#facebook .join p{ float:left; padding:0; }
+#facebook .join a{ font-size:11px; }
+#facebook a.now{ padding-left:15px; color:#868686; margin-top:5px; float:left;}
+
+
+
+.bottom{background:#f7f7f7 url(../images/couponBg.jpg) repeat-x ; border-radius:0 0 3px 3px;  padding:12px 0 6px 0px; clear:both;}
+.more{  text-align:right; margin-left:120px  }
+.more a{ font-size:11px; color:#777777; background:url(../images/icons.png) no-repeat 3px -252px; padding-left:12px; margin-right:10px;}
+.more span{ float:left; padding-left:38px;background:url(../images/logo.png) no-repeat 5px -3px; display:block; height:25px; color:#0397D6; font-size:12px}
+.logo{ background:url(../images/logo.png) no-repeat 5px bottom; width:160px; float:left; height:15px;}

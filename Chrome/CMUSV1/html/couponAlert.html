@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Alert</title>
+<link href="../css/couponAlert.css" rel="stylesheet" type="text/css" />
+
+<script type="text/javascript" src="../js/t.js"></script>
+<!-- document.addEventListener('DOMContentLoaded', function(){
+	document.querySelector('#fbLogin').addEventListener('click', chrome.extension.getBackgroundPage().facebook.login);
+}); -->
+</head>
+
+<body>
+
+<div id="facebook">
+<div class="alert">
+   <h1>facebook Alerts</h1>
+   <div class="facebook">
+       <p>You have used ${coupon.couponClickCount} coupons from CouponMountain. Do you want share this with you friend? </p>
+   </div>
+   <div class="join"><p><a href="#" class=""><img src="${coupon.contentPath}/images/facebook.jpg" alt="" width="65" height="22" border="0" /></a></p> <a href="#" class="now">Not now</a></div>
+</div>
+<div class="bottom">
+   <div class="logo"></div>
+   <div class="more"><a href="http://dev3.couponmountain.com/couponAlert/?uid=${coupon.uuid}" target="_blank">Recent Alert</a></div>
+</div>
+</div> 
+
+</body>
+</html>

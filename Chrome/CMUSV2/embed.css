@@ -1,0 +1,193 @@
+/**
+ * Make sure don't remove this block <comment>
+ * CMUS-Coupon-Digger content page CSS
+ */
+
+@charset "utf-8";
+*{box-sizing: content-box !important;-webkit-box-sizing: content-box !important;}
+
+div#cmus2012{font-family:arial; font-size:12px; line-height:normal; text-align:left; font-weight:normal;}
+div#cmus2012 div{ float:none; overflow:visible;}
+
+#cmus2012_iconsList{ font-family:arial; position:absolute; right:10px; bottom:30px; width:54px; font-size:12px; position: fixed;z-index:9999999999; line-height:normal; text-align:left;}
+#cmus2012_iconsList .cmus2012_Icons{ background:url(http://myweb.com/test/plugin/images/cmus_cmicons.png) no-repeat; width:50px; height:50px; margin-bottom:6px; cursor:pointer; position:relative;}
+#cmus2012_iconsList .cmus2012_Icons:hover{ background:url(http://myweb.com/test/plugin/images/cmus_cmicons_hover.png) no-repeat;}
+#cmus2012_iconsList .cmus2012_cmIcons{ background:url(http://myweb.com/test/plugin/images/cmus_cmicons.png) no-repeat; width:50px; height:50px; margin-bottom:6px; cursor:pointer}
+#cmus2012_iconsList .cmus2012_cmIcons:hover{ background:url(http://myweb.com/test/plugin/images/cmus_cmicons_hover.png) no-repeat;}
+#cmus2012_iconsList .cmus2012_Store{ background:url(http://myweb.com/test/plugin/images/cmus_Icons_default.png) no-repeat; width:50px; height:50px; margin-bottom:6px; cursor:pointer}
+#cmus2012_iconsList .cmus2012_cm{ background:url(http://myweb.com/test/plugin/images/cmus_favicon.png) no-repeat 11px 12px; position:relative; z-index:10000; width:50px; height:50px; cursor:pointer}
+#cmus2012_iconsList .cmus2012_number{ position:absolute; top:-5px; right:-10px; width:25px; height:18px; font-size:11px; text-align:center; color:#fff; font-family:arial; line-height:normal;}
+#cmus2012_iconsList .cmus2012_number img{ display:inline;}
+#cmus2012_iconsList .cmus2012_closealert{ position:absolute; top:-5px; right:-10px; width:25px; height:18px; font-size:11px; text-align:center; color:#fff; font-family:arial; line-height:normal; background:url(http://myweb.com/test/plugin/images/cmus_close.png) no-repeat center 0; display:none; z-index:10001}
+#cmus2012_iconsList .cmus2012_closealertwp{ position:absolute; width:300px !important; top:-5px; right:-12px; z-index:10001;display:none; }
+#cmus2012_iconsList .cmus2012_closealertcontent{ float:right; background:#fff; -webkit-box-shadow:#aaa 0px 0px 4px;}
+#cmus2012_iconsList .cmus2012_closealertwp a:link,
+#cmus2012_iconsList .cmus2012_closealertwp a:active,
+#cmus2012_iconsList .cmus2012_closealertwp a:visited{ background:#fff; opacity:0.85; display:block; font-size:11px !important; text-align:left; color:#777; font-family:arial !important; line-height:26px; text-decoration:none; word-spacing:normal; word-break:keep-all; border-bottom:#cfd0d1 1px solid; margin:1px; padding:0 5px;}
+#cmus2012_iconsList .cmus2012_closealertwp a:hover{background:#19aae7; opacity:1; display:block; font-size:11px; text-align:left; color:#fff; font-family:arial; 
+line-height:26px;text-decoration:none; padding:0 5px;}
+#cmus2012_iconsList .cmus2012_closealertwp a:last-child{ border:0;}
+#cmus2012_iconsList .cmus2012_other{ width:50px; height:50px;  position:relative; z-index:10000;}
+#cmus2012_iconsList .cmus2012_other img{ position:absolute; top:10px; left:17px;}
+#cmus2012_iconsList .cmus2012_total{ width:49px; height:12px;  left:1px; bottom:10px; position:absolute; color:#fff; font-size:10px; text-align:center; font-family:arial; line-height:normal;}
+#cmus2012_iconsList .cmus2012_total span{color:#fff; font-size:11px; font-family:arial; line-height:normal;}
+#cmus2012_iconsList .cmus2012_cmDefault,#cmus2012_iconsList .cmus2012_cmDefault:hover{background:url(http://myweb.com/test/plugin/images/cmus_cmDefault.png) no-repeat 0px 0px;z-index:10000; width:50px; height:50px;}
+
+
+#cmus2012_couponList{ display:none; width:266px; background:url(http://myweb.com/test/plugin/images/cmus_menu.png) no-repeat top; padding:15px 20px 0 20px;font-family:arial; font-size:12px; z-index:9998;}
+#cmus2012_couponList.normal{ position: fixed; right:64px; bottom:0; z-index:9999999999;}
+#cmus2012_couponList .cmus2012_title{ font-size:12px; color:#000; font-weight:bold; margin:4px 0px 15px 6px; font-family:arial; text-shadow:#fff 0 1px 0px; height:18px; overflow:hidden;}
+#cmus2012_couponList .cmus2012_title div.cmus_merchantname{ font-size:15px; display:inline; color:#000; font-family:arial;}
+#cmus2012_boxList{ position:relative;}
+#cmus2012_boxList .cmus2012_close{  width:34px; height:24px; position:absolute; right:-5px; top:-2px; cursor:pointer;}
+#cmus2012_boxList .cmus2012_close:hover{ border-left:#72b4df 1px solid; border-bottom:#72b4df 1px solid; -webkit-border-radius:0 0 0 5px; -webkit-box-shadow:#aaa -1px 1px 2px;}
+#cmus2012_boxList .cmus2012_coupon{ clear:both; margin-bottom:5px; width:248px;}
+#cmus2012_boxList .cmus2012_coupon a{ display:block; width:221px; float:left;padding-left:23px; height:26px;margin-bottom:5px; line-height:26px; color:#000; font-size:13px; font-weight:bold; text-transform:capitalize; font-family:arial; text-shadow:#fff 0 1px 0px; text-decoration:none; white-space:nowrap; overflow:hidden;}
+#cmus2012_boxList .cmus2012_coupon a.active{ background:url(http://myweb.com/test/plugin/images/cmus_coupon_active.png) no-repeat;}
+#cmus2012_boxList .cmus2012_coupon a:hover,#cmus2012_boxList .cmus2012_coupon a.active:hover{ background:url(http://myweb.com/test/plugin/images/cmus_hover.png) no-repeat; color:#000; font-size:13px;}
+#cmus2012_boxList .cmus2012_coupon a span{ display:block; width:180px; height:26px; line-height:26px; overflow:hidden; color:#000; font-size:13px; font-weight:bold; text-transform:capitalize; font-family:arial;}
+#cmus2012_boxList .cmus2012_coupon a span em{ font-style:normal; font-weight: bold;}
+#cmus2012_boxList .cmus2012_coupon a span.longtitle{ width:168px;}
+#cmus2012_boxList .cmus2012_coupon .cmus_hasnewcoupon a span{ width:167px;}
+#cmus2012_boxList .cmus2012_coupon .cmus_notnewcoupon a span{ width:195px;} 
+#cmus2012_boxList .cmus2012_box{ padding-left:3px; height:275px; overflow-y:scroll;  margin-right:3px; overflow-x:none;}
+#cmus2012_boxList .cmus2012_couponArrow{ background:url(http://myweb.com/test/plugin/images/cmus_arrow.png) no-repeat 8px 8px; width:100%; float:left; position:relative;}
+#cmus2012_boxList .cmus2012_couponArrowexpanded{background:url(http://myweb.com/test/plugin/images/cmus_arrow_expanded.png) no-repeat 7px 9px; width:100%; float:left; min-height:31px;}
+#cmus2012_boxList .cmus2012_couponArrowexpanded a{ white-space:normal; height:auto; padding-right:32px; width:182px; color:#000; font-size:13px; font-weight:bold; text-transform:capitalize; font-family:arial;}
+#cmus2012_boxList .cmus2012_couponArrowexpanded a:hover{ background:none;}
+#cmus2012_boxList .cmus_newcoupon{ position:absolute; right:17px; top:7px; height:11px; width:28px; background:url(http://myweb.com/test/plugin/images/cmus_newcoupon.png) no-repeat 0px 0px;}
+#cmus2012_boxList .cmus_featuredcoupon{ position:absolute; right:15px; top:5px; height:15px; width:15px; background:url(http://myweb.com/test/plugin/images/cmus_featuredicon.png) no-repeat 0px 0px;}
+#cmus2012_boxList .cmus2012_couponArrowexpanded .cmus_featuredcoupon{ top:2px;}
+#cmus2012_boxList .cmus_fixlongtitle{ position:absolute; right:46px; top:7px; height:11px; width:10px;}
+#cmus2012_boxList .cmus_notnewcoupon .cmus_fixlongtitle{ right:17px;}
+#cmus2012_boxList .cmus_hasnewcoupon .cmus_fixlongtitle{ right:46px;}
+#cmus2012_couponDetailDiv{ clear:both;}
+
+#cmus2012_footer{ height:30px;}
+#cmus2012_boxList .cmus_version{ color:#999; font-size:11px; font-family:arial;}
+
+#cmus2012_boxList .cmus2012_top{ height:13px; background:url(http://myweb.com/test/plugin/images/cmus_currentTop.png) no-repeat; clear:both; overflow:hidden;}
+#cmus2012_boxList .cmus2012_bot{ height:8px; background:url(http://myweb.com/test/plugin/images/cmus_currentBot.png) no-repeat; clear:both; overflow:hidden;}
+#cmus2012_boxList .cmus2012_mid{  background:url(http://myweb.com/test/plugin/images/cmus_currentMid.png) repeat-y; padding-bottom:5px;}
+#cmus2012_boxList .cmus2012_coupon .cmus2012_mid a{ background-image:none; color:#19aae7; display:inline; width:auto; float:none; padding-left:0; height:auto; margin-bottom:0; line-height:normal; font-size:12px; font-weight:normal; text-transform:none; font-family:"Helvetica Neue",Helvetica,Arial; white-space:nowrap;}
+#cmus2012_boxList .cmus2012_coupon .cmus2012_mid a:hover{ text-decoration: underline;}
+#cmus2012_boxList .cmus2012_desc{ font-size:12px; color:#777;  text-shadow:#fff 0 1px 2px; clear:both; padding:0 30px 0 22px; font-family:arial; line-height:17px; }
+#cmus2012_boxList .cmus2012_desc .cmus_expiredate{ font-size:12px; color:#bd1522; padding-bottom:4px; font-family:arial;}
+#cmus2012_boxList .cmus2012_useCode{ font-size:14px; padding-left:22px; padding-bottom:15px; padding-top:10px; clear:both; position:relative; font-family:arial;}
+#cmus2012_boxList .cmus2012_useCode strong{ text-shadow:#fff 0 1px 1px; font-weight:normal; text-transform:uppercase; font-size:12px; color:#000; font-family:arial;}
+#cmus2012_boxList span.cmus2012_codeM{ color:#333; padding:6px 0 7px; text-shadow:#fff 0 1px 1px; font-weight:bold; white-space:nowrap;background:url(http://myweb.com/test/plugin/images/cmus_codeM.png) repeat-x; line-height:normal; font-size:14px; font-family:arial; }
+#cmus2012_boxList span.cmus2012_codeL{ background:url(http://myweb.com/test/plugin/images/cmus_codeL.png) no-repeat; padding-left:10px; padding-top:6px; padding-bottom:7px; cursor:pointer;line-height:normal; font-size:14px; font-family:arial;}
+#cmus2012_boxList span.cmus2012_codeR{ background:url(http://myweb.com/test/plugin/images/cmus_codeR.png) no-repeat right; padding-right:7px; padding-top:6px; padding-bottom:5px;line-height:normal; font-size:14px; font-family:arial;}
+
+
+#cmus2012_boxList .cmus2012_useCode_over span.cmus2012_codeM{ padding:6px 0 7px; text-shadow:#fff 0 1px 1px; font-weight:bold; white-space:nowrap;background:url(http://myweb.com/test/plugin/images/cmus_codeM_over.png) repeat-x; line-height:normal; font-size:14px; font-family:arial;}
+#cmus2012_boxList .cmus2012_useCode_over span.cmus2012_codeL{ background:url(http://myweb.com/test/plugin/images/cmus_codeL_over.png) no-repeat; padding-left:10px; padding-top:6px; padding-bottom:7px;line-height:normal; font-size:14px; font-family:arial;}
+#cmus2012_boxList .cmus2012_useCode_over span.cmus2012_codeR{ background:url(http://myweb.com/test/plugin/images/cmus_codeR_over.png) no-repeat right; padding-right:7px; padding-top:6px; padding-bottom:5px;line-height:normal; font-size:14px; font-family:arial;}
+
+#cmus2012_setting{ float:left;}
+#cmus2012_setting ul{ margin:0 0 0 -2px; padding:1px 1px 0 1px;  width:93px; height:30px; position:absolute; z-index:2;}
+#cmus2012_setting ul li{ list-style:none; float:left; width:24px; margin:0; padding:0;}
+#cmus2012_setting ul li a{ display:block; width:23px; height:30px; text-indent:-9999px; padding-right:1px;}
+#cmus2012_setting ul li a.unfollow{ background:url(http://myweb.com/test/plugin/images/cmus_unfollow.png) no-repeat 4px 7px;}
+#cmus2012_setting ul li a.followed{ background:url(http://myweb.com/test/plugin/images/cmus_followed.png) no-repeat 4px 7px;}
+#cmus2012_setting ul li a.followfull{ background:url(http://myweb.com/test/plugin/images/cmus_follow_full.png) no-repeat 4px 7px;}
+#cmus2012_setting ul li a.sharetofacebook{ background:url(http://myweb.com/test/plugin/images/cmus_facebook.png) no-repeat 4px -22px;}
+#cmus2012_setting ul li a.sharetofacebook:hover{ background:url(http://myweb.com/test/plugin/images/cmus_facebook.png) no-repeat 4px 7px;}
+#cmus2012_setting ul li a.active{ background:#24324c url(http://myweb.com/test/plugin/images/cmus_setting.png) no-repeat 5px 8px;}
+
+#cmus_recentAlert{ float:right; margin-right:-5px; z-index:2; position:absolute; right:0; bottom:0;}
+#cmus_recentAlert a{display:block; width:26px; height:30px; text-indent:-9999px; padding-left:1px;}
+#cmus_recentAlert a.setting{ background:url(http://myweb.com/test/plugin/images/cmus_setting.png) no-repeat 6px -21px;}
+#cmus_recentAlert a.setting:hover{background:url(http://myweb.com/test/plugin/images/cmus_setting.png) no-repeat 6px 8px;}
+#cmus_recentAlert a.settingactive,#cmus_recentAlert a.settingactive:hover{ background:#fff url(http://myweb.com/test/plugin/images/cmus_setting.png) no-repeat 6px 8px; border-left:#72b4df 1px solid; padding-right:0;}
+
+#cmus2012_settingwrapper{  display:none; width:240px; padding:10px 10px 5px 10px; overflow:hidden; color:#000; text-shadow:#fff 0 1px 2px; background:#fff; opacity:0.97; border:#72b4df 1px solid; position:absolute; right:-6px; bottom:29px; z-index:1; -webkit-border-radius:5px 0 0 5px; }
+#cmus2012_settingwrapper .cmus_settingheader{ border-bottom:#dbf1fb 1px solid; padding-bottom:5px;}
+#cmus2012_settingwrapper .cmus_settingheader .cmus_settingtitle{ font-size:14px; font-weight:bold;}
+#cmus2012_settingwrapper .cmus_settingheader .cmus_settingright{ float:right;}
+#cmus2012_settingwrapper .cmus_settingheader a{ display:block; width:15px; height:14px; font-size:0; text-indent:-9999px; overflow:hidden; float:left; margin-left:10px;}
+#cmus2012_settingwrapper .cmus_settingheader a.cmus_homepage{ background:url(http://myweb.com/test/plugin/images/cmus_gotohomepage.png) no-repeat 0 -31px;}
+#cmus2012_settingwrapper .cmus_settingheader a.cmus_homepage:hover{background:url(http://myweb.com/test/plugin/images/cmus_gotohomepage.png) no-repeat 0 0;}
+#cmus2012_settingwrapper .cmus_settingheader div.cmus_help{float:right; margin-right:3px;}
+#cmus2012_settingwrapper .cmus_settingheader div.cmus_help a{ background:url(http://myweb.com/test/plugin/images/cmus_help.png) no-repeat 0 -33px; }
+#cmus2012_settingwrapper .cmus_settingheader div.cmus_help a:hover{ background:url(http://myweb.com/test/plugin/images/cmus_help.png) no-repeat 0 0;}
+#cmus2012_settingwrapper div.cmus_closesetting{ background:url(http://myweb.com/test/plugin/images/cmus_back.png) no-repeat 0px -33px; float:right; width:13px; height:13px; cursor:pointer;}
+#cmus2012_settingwrapper div.cmus_closesetting:hover{ background:url(http://myweb.com/test/plugin/images/cmus_back.png) no-repeat 0px 0px; float:right; width:13px; height:13px; cursor:pointer;}
+#cmus2012_settingwrapper .cmus_couponalert{ height:20px; clear:both; padding-top:7px;}
+#cmus2012_settingwrapper .cmus_couponalert span{font-size:13px; float:left; font-weight:bold; font-family:arial;}
+#cmus2012_settingwrapper .cmus_couponalert a{ display:block; width:55px; height:16px; float:left; margin:0 5px;}
+#cmus2012_settingwrapper .cmus_couponalert a.on{ background:url(http://myweb.com/test/plugin/images/cmus_setting_on.png) no-repeat 0 0; }
+#cmus2012_settingwrapper .cmus_couponalert a.off{background:url(http://myweb.com/test/plugin/images/cmus_setting_off.png) no-repeat 0 0; }
+#cmus2012_settingwrapper .cmus_favoritesites{ clear:both;}
+#cmus2012_settingwrapper .cmus_favoritesites .headline{ font-size:13px; padding-bottom:3px; font-weight:bold; font-family:arial;}
+#cmus2012_settingwrapper .cmus_favoritesites ol{ margin:0; padding:0; width:260px;}
+#cmus2012_settingwrapper .cmus_favoritesites ol li{ list-style:none; display:block; padding:0 0 5px 0; margin:0;}
+#cmus2012_settingwrapper .cmus_favoritesites ol li a{ color:#000; text-decoration:none; display:block; padding-left:10px; width:220px; height:22px; line-height:22px; background:url(http://myweb.com/test/plugin/images/cmus_favoritesites_bg.png) no-repeat 0 0; font-family:arial;}
+#cmus2012_settingwrapper .cmus_favoritesites ol li a:hover{ background:url(http://myweb.com/test/plugin/images/cmus_favoritesites_bg_hover.png) no-repeat 0 0;}
+#cmus2012_boxList .cmus_popup_b{ display:none; position:absolute; margin:0; padding:0 8px; bottom:29px; left:-26px; background:#fff; opacity:0.85; border:#0198d2 1px solid; -webkit-border-radius:3px; height:23px; line-height:23px; color:#000;}
+#cmus2012_boxList .cmus_popup_b .cmus_popup_b_content{ position:relative; font-size:12px; font-family:arial; color:#000;}
+#cmus2012_boxList .cmus_popup_b .cmus_popup_b_content span{ line-height:23px; font-size:12px; font-family:arial;}
+#cmus2012_boxList .cmus_popup_b .cmus_popup_b_content .cmus_arrow{ position:absolute; bottom:-7px; left:23px; background:url(http://myweb.com/test/plugin/images/cmus_popup_arrow_b.png) no-repeat 0 0; width:7px; height:7px; overflow:hidden;}
+
+.cmus_popup_l_wp{ position:relative;}
+.cmus_popup_l{position:absolute; margin:0; bottom:0px; right:62px; width:300px; z-index:9999;  display:none;}
+div#cmus2012 div.cmus_popup_l_border{padding:0 8px; background:#fff; opacity:0.85;  height:23px; line-height:23px; color:#000;  float:right; -webkit-box-shadow:#aaa 0px 0px 4px; }
+.cmus_popup_l .cmus_popup_l_content{ position:relative; word-spacing:normal; word-break:keep-all;}
+.cmus_popup_l .cmus_popup_l_content span{line-height:23px; font-size:12px; font-family:arial; color:#000; text-shadow:#fff 0 1px 0; }
+.cmus_popup_l .cmus_popup_l_content .cmus_arrow{ position:absolute; top:9px; right:-19px; background:url(http://myweb.com/test/plugin/images/cmus_popup_arrow_l.png) no-repeat 0 0; width:11px; height:8px; overflow:hidden; display:none;}
+
+
+
+#cmus2012_couponList ::-webkit-scrollbar {
+		width: 7px;
+		height: 0px;
+	}
+	
+#cmus2012_couponList ::-webkit-scrollbar-button:start:decrement,
+#cmus2012_couponList ::-webkit-scrollbar-button:end:increment {
+	display: block;
+	height: 0px;
+}
+	
+#cmus2012_couponList ::-webkit-scrollbar-thumb {
+		background:-webkit-gradient(linear, left top, left bottom, from(#ffffff),to(#dbeef9));
+		-webkit-border-radius: 4px;
+		-webkit-box-shadow:#666 -1px 1px 1px;
+		
+}
+	
+	
+
+.cmus_tipbox{ color:#fff; font-size:12px; font-family:arial; position:absolute; top:-8px; left:135px; width:114px; height:34px; line-height:26px; padding:0; margin:0; text-align:center; background:url(http://myweb.com/test/plugin/images/cmus_clicktocopy.png) no-repeat 0 0;}
+.cmus_tipboxcopied{ background:url(http://myweb.com/test/plugin/images/cmus_clickcopied.png) no-repeat 0 0;}
+
+#cmus2012_couponList .cmus2012_sitelink{ padding:6px 6px 0;}
+#cmus2012_couponList .cmus2012_sitelink a:link,
+#cmus2012_couponList .cmus2012_sitelink a:active,
+#cmus2012_couponList .cmus2012_sitelink a:visited,
+#cmus2012_couponList .cmus2012_sitelink a:hover{font-size:12px; color:#19a9e7; font-weight:bold; text-shadow:#fff 0 1px 0; font-family:arial; text-decoration:none; text-indent:-9999px; display:block; width:144px; height:17px; overflow:hidden;}
+
+.cmus2012_couponList_bot{ display:none; position:absolute; bottom:-13px; left:-20px; width:306px; height:13px; background:url(http://myweb.com/test/plugin/images/cmus_menu_bot.png) no-repeat 0 0;}/*add background for google search*/
+
+#cmus_help_tutorial{height:100%;width:100%;position:fixed;top:0;left:0;z-index:99999999;}
+#cmus_help_tutorial p{width:1007px;height:680px;background:url(http://myweb.com/test/plugin/images/cmus_help_tutorial.png) no-repeat;margin:30px auto;position:relative;z-index:5}
+#cmus_help_tutorial p span{width:44px;height:44px;background:url(http://myweb.com/test/plugin/images/cmus_delete.png) no-repeat;position:absolute;right:0;top:0;cursor:pointer}
+#cmus_help_tutorial p span:hover{background:url(http://myweb.com/test/plugin/images/cmus_delete_hover.png) no-repeat}
+.cmus_help_tutorial_bg{background-color:#000;height:100%;width:100%;opacity:0.88;position:absolute}
+
+
+span.cmus{ font-family:arial,sans-serif; color:#292929; font-size:14px; max-width:1000px; overflow:visible !important; padding:0 10px; background:#e9f5fd !important;} 
+.cmus a:link,.cmus a:visited{font-family:arial,sans-serif; padding:0 5px; color:#009933; text-decoration:none;}
+.cmus a:hover,.cmus a:active{ text-decoration:underline;}
+.cmusYahooWp{ margin-top:-14px; float:left; margin-left:189px; }
+.cmusBingWp{ float:left; margin-left:50px; }
+.cmusGoogleWp{margin-left:50px; margin-top:6px; height:22px; line-height:22px; border:#fff 1px solid; box-shadow:#45bdf0 0 0 4px;}
+
+.keyword{ color:#292929; font-weight:bold; font-size:16px; text-transform:capitalize;}
+
+.cmusGogle{ margin-left:0px; }
+.cmusBing{ margin-left:0px; }
+.cmusYahoo{ margin-left:0px; padding:0 0 15px 0;}
+
+#cnt-wrap{padding-bottom:10px}
+#main #cnt .ab_center_col{ width:auto;}
