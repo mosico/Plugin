@@ -119,7 +119,7 @@ var Init = {
 				Init.openTutorial();
 				Init.saveJsFile();
 				Init.saveCssFile();
-				Init.pushCoupon();
+//				Init.pushCoupon();
 			}
 			
 			Init.setIntevalExec();

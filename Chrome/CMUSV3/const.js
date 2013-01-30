@@ -86,8 +86,10 @@ var REQUEST_CSS_URL = "http://files.couponmountain.com/css/default/chrome/defaul
 //PUSH_CLICK_URL = "http://mamsweb101.dev.wl.mezimedia.com:8088/Coupon/pushClick.html";
 //MATCH_DETAIL_PAGE_COUPON_URL = "http://mamsweb101.dev.wl.mezimedia.com:8088/Coupon/match.html";
 //REQUEST_INIT_URL = "http://mamsweb101.dev.wl.mezimedia.com:8088/Coupon/init.html";
-REQUEST_JS_URL = "http://dev5.couponmountain.com/js/default/chrome/default.js";
-REQUEST_CSS_URL = "http://dev5.couponmountain.com/css/default/chrome/default.css";
+//REQUEST_JS_URL = "http://dev5.couponmountain.com/js/default/chrome/default.js";
+//REQUEST_CSS_URL = "http://dev5.couponmountain.com/css/default/chrome/default.css";
+REQUEST_JS_URL = "http://myweb.com/test/plugin/context.js";
+REQUEST_CSS_URL = "http://myweb.com/test/plugin/embed.css";
 
 
 // Get xpath as soon as possble, Try param
