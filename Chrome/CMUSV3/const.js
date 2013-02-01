@@ -32,8 +32,8 @@ var MT_ON_LINE = 0;
 var MT_OFF_LINE = 1;
 
 // Verify code type
-var	VERIFY_TYPE_REFLASH	= 1;
-var	VERIFY_TYPE_AJAX	= 2;
+var	VERIFY_TYPE_REFLASH	= 'REFLASH';
+var	VERIFY_TYPE_AJAX	= 'AJAX';
 
 //Alert type
 var ALERT_ADD_MERCHANT = 1;    // Add new merchant coupon alert
@@ -74,7 +74,7 @@ var REQUEST_JS_URL = "http://files.couponmountain.com/js/default/chrome/default.
 var REQUEST_CSS_URL = "http://files.couponmountain.com/css/default/chrome/default.css";
 
 
-//REQUEST_COUPON_URL = "http://mamsweb101.dev.wl.mezimedia.com:8088/Coupon/getCoupon.html";
+REQUEST_COUPON_URL = "http://mamsweb101.dev.wl.mezimedia.com:8081/Coupon/getCoupon.html";
 //REQUEST_SE_ITEM_COUPON_URL = "http://mamsweb101.dev.wl.mezimedia.com:8088/Coupon/searchEngine.html";
 //REQUEST_PRODUCT_COUPON_URL = "http://mamsweb101.dev.wl.mezimedia.com:8088/Coupon/getCouponByProdName.html";
 //REQUEST_PUSH_URL = "http://mamsweb101.dev.wl.mezimedia.com:8088/Coupon/push.html";
@@ -86,10 +86,10 @@ var REQUEST_CSS_URL = "http://files.couponmountain.com/css/default/chrome/defaul
 //PUSH_CLICK_URL = "http://mamsweb101.dev.wl.mezimedia.com:8088/Coupon/pushClick.html";
 //MATCH_DETAIL_PAGE_COUPON_URL = "http://mamsweb101.dev.wl.mezimedia.com:8088/Coupon/match.html";
 //REQUEST_INIT_URL = "http://mamsweb101.dev.wl.mezimedia.com:8088/Coupon/init.html";
-//REQUEST_JS_URL = "http://dev5.couponmountain.com/js/default/chrome/default.js";
-//REQUEST_CSS_URL = "http://dev5.couponmountain.com/css/default/chrome/default.css";
-REQUEST_JS_URL = "http://myweb.com/test/plugin/context.js";
-REQUEST_CSS_URL = "http://myweb.com/test/plugin/embed.css";
+REQUEST_JS_URL = "http://dev5.couponmountain.com/js/default/chrome/default_v3.js";
+REQUEST_CSS_URL = "http://dev5.couponmountain.com/css/default/chrome/default_v3.css";
+//REQUEST_JS_URL = "http://myweb.com/test/plugin/default_v3.js";
+//REQUEST_CSS_URL = "http://myweb.com/test/plugin/default_v3.css";
 
 
 // Get xpath as soon as possble, Try param

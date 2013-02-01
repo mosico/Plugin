@@ -8,7 +8,9 @@ var Context	= {
 	applyInfo: null,
 	isInject: false,
 	hasRegex: false,
-	applyCode: '',
+	hasAppendDom: false,
+	intervalTime: 4000,
+	applyType: 'REFLASH',
 	
 	init: function() {
 		var loopWaitHandle	= null;
@@ -25,29 +27,30 @@ var Context	= {
 			if (!Context.reqData.pageRegular) Context.reqData.pageRegular = {};
 			
 			Context.initApplyInfo();
-			switch (Context.reqData.domain) {
-				case "target.com":
-					Context.initTargetXpath();
-					break;
-				case "dell.com":
-					Context.initDellXpath();
-					break;
-				case "torrid.com":
-					Context.initTorridXpath();
-					break;
-				case "drugstore.com":
-					Context.initDrugstoreXpath();
-					break;
-				default:
-					return ;
-					break;
-			}
+//			switch (Context.reqData.domain) {
+//				case "target.com":
+//					Context.initTargetXpath();
+//					break;
+//				case "dell.com":
+//					Context.initDellXpath();
+//					break;
+//				case "torrid.com":
+//					Context.initTorridXpath();
+//					break;
+//				case "drugstore.com":
+//					Context.initDrugstoreXpath();
+//					break;
+//				default:
+//					return ;
+//					break;
+//			}
 			
 			if (Context.checkRegular()) {
+				if (Context.reqData.pageRegular.intervalTime > 0) Context.intervalTime	= Context.reqData.pageRegular.intervalTime * 1000;
+				if (Context.reqData.pageRegular.applyType != 'REFLASH') Context.applyType	= Context.reqData.pageRegular.applyType;
 				Context.injectDom().autoCheck();
 			} else {
-				Context.clearApplyInfo();
-				Mix.log("Regular xpaths are not supply!!");
+				Mix.log("Regular xpaths are not supply or don't match!!");
 			}
 		}
 	},
@@ -56,41 +59,72 @@ var Context	= {
 		var result	= false;
 		if (Context.reqData.pageRegular) {
 			var Regu	= Context.reqData.pageRegular;
-			if (!Mix.empty(Regu.inputXpath, true) &&
-				!Mix.empty(Regu.submitXpath, true) &&
-				!Mix.empty(Regu.appendXpath, true) &&
-				!Mix.empty(Regu.priceXpath, true)) {
-				Context.hasRegex	= true;
-				result	= true;
+			if (!Mix.empty(Regu.inputXpath, true) && !Mix.empty(Regu.submitXpath, true) && !Mix.empty(Regu.priceXpath, true)) {
+				if (Context.getXpathDom(Regu.inputXpath) &&
+					Context.getXpathDom(Regu.submitXpath) &&
+					Context.getXpathDom(Regu.priceXpath)) {
+					Context.hasRegex	= true;
+					result	= true;
+				}
 			}
 		}
 		return result;
 	},
 	
+//	checkRegular: function() {
+//		var result	= false;
+//		if (Context.reqData.pageRegular) {
+//			var Regu	= Context.reqData.pageRegular;
+//			if (!Mix.empty(Regu.inputXpath, true) &&
+//				!Mix.empty(Regu.submitXpath, true) &&
+////				!Mix.empty(Regu.appendXpath, true) &&
+//				!Mix.empty(Regu.priceXpath, true)) {
+//				Context.hasRegex	= true;
+//				result	= true;
+//			}
+//		}
+//		return result;
+//	},
+	
+	clearOnBreak: function() {
+		var prevIndex	= Context.applyInfo.codeIndex;
+		var checkingHandle	= window.setTimeout(function(){
+			var status	= Context.applyInfo.status;
+			var curIndex	= Context.applyInfo.codeIndex;
+			if (status == "checking" && curIndex == prevIndex) {
+				window.clearInterval(checkingHandle);
+				Context.clearApplyInfo();
+			} else if (status == "start" || status == "finish") {
+				window.clearInterval(checkingHandle);
+			} else {
+				prevIndex	= curIndex;
+			}
+		}, 10000);
+	},
+	
 	initApplyInfo: function() {
 		var count	= Context.reqData.count > 0 ? Context.reqData.count : 0;
-		Context.applyInfo	= {count: count, codeIndex: 0, domain: "", status: "start", isApply: false, 
+		Context.applyInfo	= {count: count, codeIndex: 0, domain: "", status: "start", isApply: false, applyCode: '',
 				originalPrice: 0, finalPrice: 0, discount: 0, symbol: '', useInfo: []};
 	},
 	
 	initTargetXpath: function() {
 		Context.reqData.pageRegular.inputXpath	= ['//input[@id="promoCode"]'];
 		Context.reqData.pageRegular.submitXpath	= ['//button[@class="button tier-2 applyButton"]'];
-		Context.reqData.pageRegular.appendXpath	= ['//div[@class="input-field"]'];
+//		Context.reqData.pageRegular.appendXpath	= ['//div[@class="input-field"]'];
 		Context.reqData.pageRegular.priceXpath	= ['//li[@id="final-price"]/span[@class="subtotalLabel-price"]'];
 		Context.reqData.pageRegular.discountXpath	= ['//span[@class="dprice"]'];
-		Context.reqData.execInterval	= 2000;
-		Context.reqData.verifyType		= VERIFY_TYPE_REFLASH;
+		Context.reqData.intervalTime	= 2000;
+		Context.reqData.applyType		= VERIFY_TYPE_REFLASH;
 	},
 	
 	initDellXpath: function() {
 		Context.reqData.pageRegular.inputXpath	= ['//input[@id="basketCoupons_manual_coupon_code"]'];
 		Context.reqData.pageRegular.submitXpath	= ['//a[@testid="basketCoupons_InternalLink2"]'];
-		Context.reqData.pageRegular.appendXpath	= ['//input[@id="basketCoupons_manual_coupon_code"]/..'];
-//		Context.reqData.pageRegular.appendXpath	= ['//table[@id="Table10"]//table/tbody/tr[2]/td[2]'];
+//		Context.reqData.pageRegular.appendXpath	= ['//input[@id="basketCoupons_manual_coupon_code"]/..'];
 		Context.reqData.pageRegular.priceXpath	= ['//span[@id="basketItems__CartItemsRepeater__item_0_0"]//td/span[@class="price_text_bold"]'];
-		Context.reqData.execInterval	= 2000;
-		Context.reqData.verifyType		= VERIFY_TYPE_REFLASH;
+		Context.reqData.intervalTime	= 2000;
+		Context.reqData.applyType		= VERIFY_TYPE_REFLASH;
 	},
 	
 	initTorridXpath: function() {
@@ -99,21 +133,21 @@ var Context	= {
 		Context.reqData.pageRegular.appendXpath	= ['//div[@id="orderHeader"]'];
 		Context.reqData.pageRegular.priceXpath	= ['//div[@id="totAmt"]'];
 		Context.reqData.pageRegular.discountXpath	= ['//div[@id="promoAmt"]'];
-		Context.reqData.execInterval	= 4000;
-		Context.reqData.verifyType		= VERIFY_TYPE_AJAX;
+		Context.reqData.intervalTime	= 4000;
+		Context.reqData.applyType		= VERIFY_TYPE_AJAX;
 	},
 	
 	initDrugstoreXpath: function() {
 		Context.reqData.pageRegular.inputXpath	= ['//input[@id="applyCoupon"]'];
 		Context.reqData.pageRegular.submitXpath	= ['//input[@id="btnApplyCoupon"]'];
-		Context.reqData.pageRegular.appendXpath	= ['//div[@id="h-f-2col-innerbody-wrapper"]/div[@class="h-f-2col-main"]/div[@class="h-f-2col-right"]'];
+//		Context.reqData.pageRegular.appendXpath	= ['//div[@id="h-f-2col-innerbody-wrapper"]/div[@class="h-f-2col-main"]/div[@class="h-f-2col-right"]'];
 		Context.reqData.pageRegular.priceXpath	= ['//div[@id="bag-totals"]//td[@class="bagtotalretailamount"]'];
-//		Context.reqData.pageRegular.discountXpath	= ['//div[@id="promoAmt"]'];
-		Context.reqData.execInterval	= 4000;
-		Context.reqData.verifyType		= VERIFY_TYPE_REFLASH;
+		Context.reqData.intervalTime	= 4000;
+		Context.reqData.applyType		= VERIFY_TYPE_REFLASH;
 	},
 	
 	execute: function() {
+		Animate.hideMain();
 		var Data	= Context.reqData;
 //		if (Mix.empty(Data.coupon) || Data.pageType != PT_CART_PAGE) {
 //			Mix.log("Don't has coupon or current page is not cart page !!");
@@ -125,6 +159,7 @@ var Context	= {
 		var maxLoopTimes = Data.count;
 		var loopHandle	= null;
 		loopTry();
+		Context.clearOnBreak();
 		function loopTry() {
 			var price	= Context.getPrice(Regular.priceXpath);
 			if (loopTimes - 2 >= 0 && loopTimes - 2 < maxLoopTimes) {
@@ -148,15 +183,14 @@ var Context	= {
 					}
 				}
 				if (applyCode) {
-					Context.applyCode	= applyCode;
-					Context.saveApplyInfo({isApply: true});
+					Context.saveApplyInfo({isApply: true, applyCode: applyCode});
 					Animate.showApply();
 					$(Context.getXpathDom(Regular.inputXpath)).val(applyCode);
 					var submitDom2	= Context.getXpathDom(Regular.submitXpath);
 					$(submitDom2).trigger('click');
 					Context.execHrefJs($(submitDom2).attr("href"));	// Fix doesn't execute href js
-					if (Data.verifyType	== VERIFY_TYPE_AJAX) {
-						loopHandle	= setTimeout(loopTry, Data.execInterval);
+					if (Context.applyType	== VERIFY_TYPE_AJAX) {
+						loopHandle	= setTimeout(loopTry, Context.intervalTime);
 					}
 					return ;
 				}
@@ -183,8 +217,8 @@ var Context	= {
 			
 			loopTimes++;
 			
-			if (Data.verifyType	== VERIFY_TYPE_AJAX) {
-				loopHandle	= setTimeout(loopTry, Data.execInterval);
+			if (Context.applyType	== VERIFY_TYPE_AJAX) {
+				loopHandle	= setTimeout(loopTry, Context.intervalTime);
 			}
 		}
 	},
@@ -213,6 +247,10 @@ var Context	= {
 		
 		Context.getApplyInfo(function(applyInfo){
 			if (!applyInfo.status || applyInfo.domain != Context.reqData.domain) {
+				// applyInfo.status != 'checking' &&
+				if (applyInfo.status != 'checking' && Context.applyInfo.status == 'start' && !Context.hasAppendDom) {
+					Animate.showMain();
+				}
 				return ;
 			}
 			
@@ -220,13 +258,13 @@ var Context	= {
 			applyInfo.codeIndex = curCodeIndex;
 			Context.applyInfo	= applyInfo;
 			
-			if (applyInfo.status == 'checking') {
+			if (applyInfo.status == 'checking') { 
 				if (applyInfo.codeIndex < applyInfo.count) {
 					Animate.showProcess();
 				}
-				setTimeout(function(){
-					$("#cmus_autoApplyBtn").trigger('click');
-				}, 1000);
+				setTimeout(Context.execute, 1000);
+			} else if (applyInfo.status == 'finish') {
+				Animate.showResult();
 			}
 		});
 	},
@@ -237,27 +275,28 @@ var Context	= {
 			return this;
 		}
 		
-		var btnHtml		= Html.getBtn();
-		var popupHtml	= Html.getPopup();
-		var appendDom	= Context.getXpathDom(Context.reqData.pageRegular.appendXpath);
+//		// If don't get code input box, stop inject
+//		var inputDom	= Context.getXpathDom(Context.reqData.pageRegular.inputXpath);
+//		if (!inputDom) return this;
+		
+		$("body").append(Html.getPopup());
+		Context.isInject	= true;
+		var appendDom		= Context.getXpathDom(Context.reqData.pageRegular.appendXpath);
 		
 		// If don't get appendXpath refer's dom, stop execute 
 		if (!appendDom) {
-			Context.clearApplyInfo();
-			Mix.log("Doesn't get appendXpath's dom !!");
-			return this;
+			Context.hasAppendDom	= false;
+			$("body").append(Html.getMain());
 		} else {
-			Context.isInject	= true;
+			Context.hasAppendDom	= true;
+			$(appendDom).append(Html.getBtn());
 		}
-		
-		$(appendDom).append(btnHtml);
-		$("body").append(popupHtml);
 		
 		return this;
 	},
 	
 	getXpathText: function(xpath) {
-		var textArr		= [];
+		var textArr	= [];
 		try {
 			var iterator	= document.evaluate(xpath, document, null, XPathResult.UNORDER_NODE_ITERATOR_TYPE, null);
 			var node = iterator.iterateNext();
@@ -415,6 +454,19 @@ var Context	= {
 
 
 var Html = {
+	getMain: function() {
+		var count	= Context.reqData.count;
+		var text	= 'Coupon Digger has found '+ count;
+			text	+= count > 1 ? ' coupons' : ' coupon';
+			text	+= ' on '+ Context.reqData.merName +'<br />';
+			text	+= 'Want to try '+ (count > 1 ? 'them?' : 'it?');
+		var html	= '<div id="cmus_main">';
+			html	+= '  <div>'+ text +'</div>';
+			html	+= '  <div class="cmus_main_button"><span id="cmus_autoApplyBtn">[Yes]</span><span id="cmus_closeMainBtn">[No]</span></div>';
+			html	+= '</div>';
+		return html;
+	},
+	
 	getBtn: function() {
 		var html	= '<div id="cmus_autoApplyBtn">';
 			html	+= 'Click for saving money!';
@@ -436,6 +488,14 @@ var Html = {
 
 
 var Animate = {
+	showMain: function() {
+		$("#cmus_lightbox_cover").show();
+		$("#cmus_main").show();
+	},
+	hideMain: function() {
+		$("#cmus_main").hide();
+		$("#cmus_lightbox_cover").hide();
+	},
 	showPopup: function() {
 		$("#cmus_lightbox_cover").show();
 		$("#cmus_lightbox_popup").show();
@@ -452,7 +512,7 @@ var Animate = {
 		var origPrice	= appInfo.originalPrice;
 		var finalPrice	= appInfo.finalPrice;
 		var reduce		= Context.getReduce(origPrice, finalPrice);
-		var symbol		= appInfo.symbol;
+		var symbol		= appInfo.symbol ? appInfo.symbol : '$';
 		var content		= "Trying code(s) count: <b>" + appInfo.count + "</b><br /> Before use code: <b>" + symbol + origPrice + "</b>";
 			content		+= "<br /> After use code: <b>"+ symbol + finalPrice + '</b>';
 //		if (!reduce && appInfo.discount) {
@@ -462,9 +522,12 @@ var Animate = {
 //		}
 		if (reduce > 0) {
 			if(!appInfo.discount) Context.applyInfo.discount	= reduce;
-			content	+= "<br />Congratulation: you saved: <b>"+ symbol + reduce + '</b>';
+			content	= '<span style="font-size:14px;"><b>Congratulations</b>';
+			content	+= '<br /><b>you saved "'+ symbol + reduce +'" dollars by code "'+ appInfo.applyCode +'"</b>';
+			content	+= '<br /> Original price: ' + symbol + origPrice;
+			content	+= '<span style="margin-left:15px">Latest price: ' + symbol + finalPrice + '</span>';
 		} else {
-			content += '<br />We are sorry for no code be used.';
+			content = '<span style="font-size:16px;">Sorry, No coupon found</span>';
 		}
 		$(".cmus_lightbox_content").html(content);
 	},
@@ -475,21 +538,21 @@ var Animate = {
 		var origPrice	= appInfo.originalPrice;
 		var finalPrice	= appInfo.finalPrice;
 		var curNum		= appInfo.codeIndex + 1;
-		var symbol		= appInfo.symbol;
+		var symbol		= appInfo.symbol ? appInfo.symbol : '$';
 		var count		= appInfo.count;
 		if (curNum > count) curNum = count;
-		var content		= "Trying code(s) process: <b>" + curNum + " / " + count + "</b>";
+		var content		= "Trying codes " + curNum + " of " + count;
 		if (origPrice) {
-			content	+= "<br /> Original price: <b>" + symbol + origPrice + "</b>";
+			content	+= "<br /> Original price: " + symbol + origPrice;
 			if (!finalPrice) finalPrice	= origPrice;
-			content	+= "<br /> Current price: <b>" + symbol + finalPrice + "</b>";
+			content	+= '<span style="margin-left:15px">Latest price: ' + symbol + finalPrice + '</span>';
 		}
 		$(".cmus_lightbox_content").html(content);
 	},
 	
 	showApply: function() {
 		Animate.showPopup();
-		var content		= "<b>Applying max discount code: " + Context.applyCode + "</b>";
+		var content		= 'Finish. The best coupon is "' + Context.applyInfo.applyCode + '", automatically apply for you';
 		$(".cmus_lightbox_content").html(content);
 	}
 };//End Animate object
@@ -524,5 +587,6 @@ $(document).ready(function(){
 	Context.init();
 	$("#cmus_autoApplyBtn").live("click", Context.execute);
 	$(".cmus_lightbox_close").live("click", Animate.hidePopup);
+	$("#cmus_closeMainBtn").live("click", Animate.hideMain);
 });
 
