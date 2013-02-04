@@ -3,6 +3,8 @@
  * CMUS-Coupon-Digger content page JS
  */
 
+var loopHandle	= null;
+var loopTimes	= 0;
 var Context	= {
 	reqData: null,
 	applyInfo: null,
@@ -11,6 +13,7 @@ var Context	= {
 	hasAppendDom: false,
 	intervalTime: 4000,
 	applyType: 'REFLASH',
+	removeDom: null,
 	
 	init: function() {
 		var loopWaitHandle	= null;
@@ -46,13 +49,44 @@ var Context	= {
 //			}
 			
 			if (Context.checkRegular()) {
-				if (Context.reqData.pageRegular.intervalTime > 0) Context.intervalTime	= Context.reqData.pageRegular.intervalTime * 1000;
-				if (Context.reqData.pageRegular.applyType != 'REFLASH') Context.applyType	= Context.reqData.pageRegular.applyType;
+				var intvTime	= Context.reqData.pageRegular.intervalTime;
+				var applyType	= Context.reqData.pageRegular.applyType;
+				if (intvTime > 0) Context.intervalTime	= intvTime * 1000;
+				if (applyType != 'REFLASH') Context.applyType	= applyType;
 				Context.injectDom().autoCheck();
 			} else {
 				Mix.log("Regular xpaths are not supply or don't match!!");
 			}
 		}
+	},
+	
+	getRemoveDom: function() {
+		var dom	= null;
+		
+		if (Context.reqData.domain == 'lampsplus.com') {
+			Context.reqData.pageRegular.removeXpath	= '//input[@id="btnRemovePromoCode"]';
+		}
+		
+		var removeXpath	= Context.reqData.pageRegular.removeXpath;
+		if (!Mix.empty(removeXpath)) {
+			switch (typeof removeXpath) {
+				case 'string':
+					dom	= Context.getXpathDom(removeXpath);
+					break;
+				case 'object':
+					for (var i in removeXpath) {
+						var xpath	= removeXpath[i];
+						if (Mix.empty(xpath)) continue;
+						dom	= Context.getXpathDom(xpath);
+						if (!dom) continue;
+					}
+					break;
+				default:
+					break;
+			}
+		}
+		
+		return dom;
 	},
 	
 	checkRegular: function() {
@@ -68,6 +102,14 @@ var Context	= {
 				}
 			}
 		}
+		if (!result) {
+			var removeDom	= Context.getRemoveDom();
+			if (removeDom) {
+				Context.removeDom	= removeDom;
+				result	= true;
+			}
+		}
+		
 		return result;
 	},
 	
@@ -149,24 +191,26 @@ var Context	= {
 	execute: function() {
 		Animate.hideMain();
 		var Data	= Context.reqData;
-//		if (Mix.empty(Data.coupon) || Data.pageType != PT_CART_PAGE) {
-//			Mix.log("Don't has coupon or current page is not cart page !!");
-//			return ;
-//		}
 		
+		var removeDom	= Context.removeDom;
 		var Regular		= Data.pageRegular;
-		var loopTimes	= Context.applyInfo.codeIndex + 1;
-		var maxLoopTimes = Data.count;
-		var loopHandle	= null;
+		var maxLoopTimes	= Data.count;
+		var prevCodeIndex	= 0;
+		loopTimes		= Context.applyInfo.codeIndex + 1;
 		loopTry();
 		Context.clearOnBreak();
 		function loopTry() {
 			var price	= Context.getPrice(Regular.priceXpath);
-			if (loopTimes - 2 >= 0 && loopTimes - 2 < maxLoopTimes) {
+			Context.applyInfo.finalPrice	= price;
+//			var minPrice	= Context.applyInfo.finalPrice;
+//			Context.applyInfo.finalPrice	= minPrice > 0 ? Math.min(minPrice, price) : price;
+			prevCodeIndex	= loopTimes - 2;
+			if (prevCodeIndex >= 0 && prevCodeIndex < maxLoopTimes) {
 				var prevPrice	= loopTimes > 2 ? Context.applyInfo.useInfo[loopTimes - 3].price : Context.applyInfo.originalPrice;
-				Context.applyInfo.useInfo[loopTimes - 2].price	= price;
-				Context.applyInfo.useInfo[loopTimes - 2].reduce	= Context.getReduce(prevPrice, price);
-				Context.applyInfo.finalPrice	= price;
+				if (!Context.applyInfo.useInfo[prevCodeIndex].isRemove) {
+					Context.applyInfo.useInfo[prevCodeIndex].price	= price;
+					Context.applyInfo.useInfo[prevCodeIndex].reduce	= Context.getReduce(prevPrice, price);
+				}
 			}
 			
 			if (loopTimes == 1) {
@@ -174,7 +218,7 @@ var Context	= {
 			} else if (loopTimes > maxLoopTimes) {
 				// Apply the max discount code
 				var reduce	= Context.getReduce(Context.applyInfo.originalPrice, Context.applyInfo.finalPrice);
-				var applyCode	= '';
+				var applyCode	= Context.applyInfo.applyCode;
 				if (reduce > 0 && !Context.applyInfo.isApply) {
 					try {
 						applyCode	= Context.sortCode(Context.applyInfo.useInfo)[0].code;
@@ -182,17 +226,20 @@ var Context	= {
 						Mix.log("Sort coupon code fail", e);
 					}
 				}
-				if (applyCode) {
-					Context.saveApplyInfo({isApply: true, applyCode: applyCode});
-					Animate.showApply();
-					$(Context.getXpathDom(Regular.inputXpath)).val(applyCode);
-					var submitDom2	= Context.getXpathDom(Regular.submitXpath);
-					$(submitDom2).trigger('click');
-					Context.execHrefJs($(submitDom2).attr("href"));	// Fix doesn't execute href js
-					if (Context.applyType	== VERIFY_TYPE_AJAX) {
-						loopHandle	= setTimeout(loopTry, Context.intervalTime);
+				if (applyCode && prevCodeIndex < maxLoopTimes) {
+					// Remove code
+					if (removeDom) {
+						Context.applyInfo.useInfo[prevCodeIndex].isRemove	= true;
+						Context.saveApplyInfo({codeIndex: prevCodeIndex, applyCode: applyCode});
+						$(removeDom).trigger('click');
+						Animate.showApply();
+						return;
+					} else {
+						Context.saveApplyInfo({isApply: true, applyCode: applyCode});
+						Animate.showApply();
+						Context.applyCode(applyCode, Regular.inputXpath, Regular.submitXpath, loopTry);
+						return;
 					}
-					return ;
 				}
 				
 				clearTimeout(loopHandle);
@@ -205,21 +252,36 @@ var Context	= {
 			
 			var curCoupon	= Data.coupon[loopTimes - 1];
 			
-			// Saving apply/submit code info
-			Context.applyInfo.useInfo.push({couponId: curCoupon.couponId, code: curCoupon.code, price: price, reduce: 0});
-			Context.saveApplyInfo({codeIndex: loopTimes - 1, status: "checking", domain: Data.domain});
-			
-			Animate.showProcess();
-			$(Context.getXpathDom(Regular.inputXpath)).val(curCoupon.code);
-			var submitDom	= Context.getXpathDom(Regular.submitXpath);
-			$(submitDom).trigger('click');
-			Context.execHrefJs($(submitDom).attr("href"));	// Fix doesn't execute href js
-			
-			loopTimes++;
-			
-			if (Context.applyType	== VERIFY_TYPE_AJAX) {
-				loopHandle	= setTimeout(loopTry, Context.intervalTime);
+			// Remove code
+			if (removeDom) {
+				if (prevCodeIndex >= 0) {
+					Context.applyInfo.useInfo[prevCodeIndex].isRemove	= true;
+				} else if (typeof Context.applyInfo.useInfo[0] == "object") {
+					Context.applyInfo.useInfo[0].isRemove	= true;
+				}
+				$(removeDom).trigger('click');
+				Context.saveApplyInfo({codeIndex: prevCodeIndex, status: "checking", domain: Data.domain});
+				Animate.showProcess();
+				return ;
+			} else {
+				Context.applyInfo.useInfo.push({couponId: curCoupon.couponId, code: curCoupon.code, price: price, reduce: 0, isRemove: false});
+				Context.saveApplyInfo({codeIndex: loopTimes - 1, status: "checking", domain: Data.domain});
+				Animate.showProcess();
+				Context.applyCode(curCoupon.code, Regular.inputXpath, Regular.submitXpath, loopTry);
 			}
+		}
+	},
+	
+	applyCode: function(code, inputXpath, submitXpath, loopFun) {
+		$(Context.getXpathDom(inputXpath)).val(code);
+		var submitDom	= Context.getXpathDom(submitXpath);
+		$(submitDom).trigger('click');
+		Context.execHrefJs($(submitDom).attr("href"));	// Fix doesn't execute href js
+		
+		loopTimes++;
+		
+		if (Context.applyType	== VERIFY_TYPE_AJAX) {
+			loopHandle	= setTimeout(loopFun, Context.intervalTime);
 		}
 	},
 	
@@ -436,7 +498,7 @@ var Context	= {
 	
 	// Fix JS  bug (like: 0.93 - 0.33)
 	getReduce: function (num1, num2) {
-		return Math.abs((num1 * 1000 - num2 * 1000) / 1000);
+		return (num1 * 1000 - num2 * 1000) / 1000;
 	},
 	
 	sortCode: function (useInfo) {
@@ -567,20 +629,20 @@ if (IS_INJECT_CONTENT_PAGE) {
 	Mix.log("Is injecting page content......");
 	IS_INJECT_CONTENT_PAGE	= true;
 	
-chrome.extension.onRequest.addListener(function(Request, sender, sendResponse) {
-	if (!Request || (!Request.reqType && !Request.pageType) || Request.ret != 0) {
-		sendResponse({ret: -1});
-		return ;
-	}
+	chrome.extension.onRequest.addListener(function(Request, sender, sendResponse) {
+		if (!Request || (!Request.reqType && !Request.pageType) || Request.ret != 0) {
+			sendResponse({ret: -1});
+			return ;
+		}
 
-	switch (Request.reqType) {
-		// Embed plugin<html> to current page
-		case PT_EMBED_COUPON:
-			Context.reqData	= Request;
-			sendResponse({ret: 0});
-			break;
-	}
-});
+		switch (Request.reqType) {
+			// Embed plugin<html> to current page
+			case PT_EMBED_COUPON:
+				Context.reqData	= Request;
+				sendResponse({ret: 0});
+				break;
+		}
+	});
 }
 
 $(document).ready(function(){
