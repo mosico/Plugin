@@ -22,6 +22,17 @@ chrome.extension.onRequest.addListener(function(Request, sender, sendResponse) {
 			retVal	= Storage.getApplyInfo();
 			sendResponse(retVal);
 			break;
+		case "openLink":
+			chrome.tabs.create({url: Request.tagUrl, active: true});
+			break;
+		case "saveStorage":
+			retVal	= Storage.save(Request.key, Request.value);
+			sendResponse({ret: retVal});
+			break;
+		case "getStorage":
+			retVal	= Storage.get(Request.key, Request.value);
+			sendResponse({ret: retVal});
+			break;
 		case "getClickedMerId":
 			var merIds	= Storage.getClickedPushMerId();
 			sendResponse({ret: 0, merIds: merIds});

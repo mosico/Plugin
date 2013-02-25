@@ -5,11 +5,11 @@
 
 var loopHandle	= null;
 var loopTimes	= 0;
+var curApplyTime	= 0;
 var Context	= {
 	reqData: null,
 	applyInfo: null,
 	isInject: false,
-	hasRegex: false,
 	hasAppendDom: false,
 	intervalTime: 4000,
 	applyType: 'REFLASH',
@@ -30,29 +30,12 @@ var Context	= {
 			if (!Context.reqData.pageRegular) Context.reqData.pageRegular = {};
 			
 			Context.initApplyInfo();
-//			switch (Context.reqData.domain) {
-//				case "target.com":
-//					Context.initTargetXpath();
-//					break;
-//				case "dell.com":
-//					Context.initDellXpath();
-//					break;
-//				case "torrid.com":
-//					Context.initTorridXpath();
-//					break;
-//				case "drugstore.com":
-//					Context.initDrugstoreXpath();
-//					break;
-//				default:
-//					return ;
-//					break;
-//			}
 			
 			if (Context.checkRegular()) {
 				var intvTime	= Context.reqData.pageRegular.intervalTime;
 				var applyType	= Context.reqData.pageRegular.applyType;
 				if (intvTime > 0) Context.intervalTime	= intvTime * 1000;
-				if (applyType != 'REFLASH') Context.applyType	= applyType;
+				if (applyType !== 'REFLASH') Context.applyType	= applyType;
 				Context.injectDom().autoCheck();
 			} else {
 				Mix.log("Regular xpaths are not supply or don't match!!");
@@ -63,9 +46,11 @@ var Context	= {
 	getRemoveDom: function() {
 		var dom	= null;
 		
-		if (Context.reqData.domain == 'lampsplus.com') {
-			Context.reqData.pageRegular.removeXpath	= '//input[@id="btnRemovePromoCode"]';
-		}
+//		if (Context.reqData.domain == 'lampsplus.com') {
+//			Context.reqData.pageRegular.removeXpath	= '//input[@id="btnRemovePromoCode"]';
+//		} else if (Context.reqData.domain == 'ashro.com') {
+//			Context.reqData.pageRegular.removeXpath	= "//div[@id='colRight']/form/p/a";
+//		}
 		
 		var removeXpath	= Context.reqData.pageRegular.removeXpath;
 		if (!Mix.empty(removeXpath)) {
@@ -91,17 +76,51 @@ var Context	= {
 	
 	checkRegular: function() {
 		var result	= false;
-		if (Context.reqData.pageRegular) {
-			var Regu	= Context.reqData.pageRegular;
-			if (!Mix.empty(Regu.inputXpath, true) && !Mix.empty(Regu.submitXpath, true) && !Mix.empty(Regu.priceXpath, true)) {
-				if (Context.getXpathDom(Regu.inputXpath) &&
-					Context.getXpathDom(Regu.submitXpath) &&
-					Context.getXpathDom(Regu.priceXpath)) {
-					Context.hasRegex	= true;
-					result	= true;
+		if (Mix.empty(Context.reqData.pageRegular)) {
+			return result;
+		}
+		// Verify input&price&submit xpaths, add price>0
+		var Regu	= Context.reqData.pageRegular;
+		
+		// If has cart page url regular, match current url
+		if (!Mix.empty(Regu.cartReg)) {
+			try {
+				var isMatched	= false;
+				for (var i in Regu.cartReg) {
+					var reg	= new RegExp(Regu.cartReg[i], 'i');
+					if (reg.test(Context.reqData.url)) {
+						isMatched	= true;
+						break;
+					}
 				}
+				if (!isMatched) {
+					return result;
+				}
+			} catch (e) {
+				Mix.log("Match cart page url error", e);
+				return result;
 			}
 		}
+		
+		// If doesn't get price or price<=0 return false
+		if (Mix.empty(Regu.priceXpath, true) || (Context.getPrice(Regu.priceXpath) <= 0)) {
+			return result;
+		}
+		
+		// Fix some special merchant, EX.apply button and remove button in the same xpath(such as fansedge.com)
+		var fixRet	= Context.fixSpecialMerchant();
+		if (fixRet.isSpecial) {
+			return fixRet.checkResult;
+		}
+		
+		// Find code inputbox and apply button
+		if (!Mix.empty(Regu.inputXpath, true) && !Mix.empty(Regu.submitXpath, true)) {
+			if (Context.getXpathDom(Regu.inputXpath) && Context.getXpathDom(Regu.submitXpath)) {
+				result	= true;
+			}
+		}
+		
+		// If verify above xpaths false check isn't has revome link/button
 		if (!result) {
 			var removeDom	= Context.getRemoveDom();
 			if (removeDom) {
@@ -113,30 +132,38 @@ var Context	= {
 		return result;
 	},
 	
-//	checkRegular: function() {
-//		var result	= false;
-//		if (Context.reqData.pageRegular) {
-//			var Regu	= Context.reqData.pageRegular;
-//			if (!Mix.empty(Regu.inputXpath, true) &&
-//				!Mix.empty(Regu.submitXpath, true) &&
-////				!Mix.empty(Regu.appendXpath, true) &&
-//				!Mix.empty(Regu.priceXpath, true)) {
-//				Context.hasRegex	= true;
-//				result	= true;
-//			}
-//		}
-//		return result;
-//	},
+	fixSpecialMerchant: function() {
+		var ret	= {isSpecial:false, checkResult: false};
+		// Apply button and remove in the same position
+		if (Context.reqData.domain === 'fansedge.com') {
+			var btnDom	= Context.getXpathDom(Context.reqData.pageRegular.submitXpath);
+			var clsName	= $(btnDom).attr('class');
+			if (clsName.indexOf('inputCouponButtonRemove') >= 0) {
+				Context.removeDom	= btnDom;
+				ret.checkResult	= true;
+			} else if (clsName.indexOf('inputCouponButton') >= 0) {
+				ret.checkResult	= true;
+			}
+			ret.isSpecial	= true;
+		}
+		// Both reflash and ajax apply coupon code
+		else if (Context.reqData.domain === 'target.com' && Context.reqData.url.indexOf('https://www-secure.target.com/checkout_process') === 0) {
+			// Change reflash to ajax type in checkout page
+			Context.reqData.pageRegular.applyType	= VERIFY_TYPE_AJAX;
+			Context.reqData.pageRegular.intervalTime	= 3;
+		}
+		return ret;
+	},
 	
 	clearOnBreak: function() {
 		var prevIndex	= Context.applyInfo.codeIndex;
 		var checkingHandle	= window.setTimeout(function(){
 			var status	= Context.applyInfo.status;
 			var curIndex	= Context.applyInfo.codeIndex;
-			if (status == "checking" && curIndex == prevIndex) {
+			if (status === "checking" && curIndex === prevIndex) {
 				window.clearInterval(checkingHandle);
 				Context.clearApplyInfo();
-			} else if (status == "start" || status == "finish") {
+			} else if (status === "start" || status === "finish") {
 				window.clearInterval(checkingHandle);
 			} else {
 				prevIndex	= curIndex;
@@ -147,7 +174,7 @@ var Context	= {
 	initApplyInfo: function() {
 		var count	= Context.reqData.count > 0 ? Context.reqData.count : 0;
 		Context.applyInfo	= {count: count, codeIndex: 0, domain: "", status: "start", isApply: false, applyCode: '',
-				originalPrice: 0, finalPrice: 0, discount: 0, symbol: '', useInfo: []};
+				originalPrice: 0, finalPrice: 0, discount: 0, symbol: '', useInfo: [], startTime: 0, endTime: 0, prevCode: ''};
 	},
 	
 	initTargetXpath: function() {
@@ -189,9 +216,7 @@ var Context	= {
 	},
 	
 	execute: function() {
-		Animate.hideMain();
-		var Data	= Context.reqData;
-		
+		var Data		= Context.reqData;
 		var removeDom	= Context.removeDom;
 		var Regular		= Data.pageRegular;
 		var maxLoopTimes	= Data.count;
@@ -200,8 +225,11 @@ var Context	= {
 		loopTry();
 		Context.clearOnBreak();
 		function loopTry() {
+			Context.setEndTime();
+			var curTime	= curApplyTime;
 			var price	= Context.getPrice(Regular.priceXpath);
 			Context.applyInfo.finalPrice	= price;
+			Context.applyInfo.endTime		= curTime;
 //			var minPrice	= Context.applyInfo.finalPrice;
 //			Context.applyInfo.finalPrice	= minPrice > 0 ? Math.min(minPrice, price) : price;
 			prevCodeIndex	= loopTimes - 2;
@@ -213,19 +241,15 @@ var Context	= {
 				}
 			}
 			
-			if (loopTimes == 1) {
+			if (loopTimes === 1) {
 				Context.applyInfo.originalPrice	= price;
+				Context.applyInfo.startTime		= curTime;
+				Context.applyInfo.prevCode		= Context.getInputCode(Regular.inputXpath);
 			} else if (loopTimes > maxLoopTimes) {
+				var applyCode	= Context.getBestCode();
+				if (!applyCode)	applyCode	= Context.applyInfo.applyCode;
+				
 				// Apply the max discount code
-				var reduce	= Context.getReduce(Context.applyInfo.originalPrice, Context.applyInfo.finalPrice);
-				var applyCode	= Context.applyInfo.applyCode;
-				if (reduce > 0 && !Context.applyInfo.isApply) {
-					try {
-						applyCode	= Context.sortCode(Context.applyInfo.useInfo)[0].code;
-					} catch (e) {
-						Mix.log("Sort coupon code fail", e);
-					}
-				}
 				if (applyCode && prevCodeIndex < maxLoopTimes) {
 					// Remove code
 					if (removeDom) {
@@ -256,7 +280,7 @@ var Context	= {
 			if (removeDom) {
 				if (prevCodeIndex >= 0) {
 					Context.applyInfo.useInfo[prevCodeIndex].isRemove	= true;
-				} else if (typeof Context.applyInfo.useInfo[0] == "object") {
+				} else if (typeof Context.applyInfo.useInfo[0] === "object") {
 					Context.applyInfo.useInfo[0].isRemove	= true;
 				}
 				$(removeDom).trigger('click');
@@ -264,12 +288,52 @@ var Context	= {
 				Animate.showProcess();
 				return ;
 			} else {
-				Context.applyInfo.useInfo.push({couponId: curCoupon.couponId, code: curCoupon.code, price: price, reduce: 0, isRemove: false});
+				Context.applyInfo.useInfo.push({couponId: curCoupon.couponId, code: curCoupon.code, price: price, reduce: 0, 
+												isRemove: false, startTime: curTime});
 				Context.saveApplyInfo({codeIndex: loopTimes - 1, status: "checking", domain: Data.domain});
 				Animate.showProcess();
 				Context.applyCode(curCoupon.code, Regular.inputXpath, Regular.submitXpath, loopTry);
 			}
 		}
+	},
+	
+	getInputCode: function(inputXpath) {
+		var code	= '';
+		if (Mix.empty(inputXpath)) return code;
+		var node	= Context.getXpathDom(inputXpath);
+		if (!Mix.empty(node)) {
+			code	= $(node).val();
+		}
+		return code;
+	},
+	
+	getBestCode: function() {
+		var code	= '';
+		var useInfo	= Context.applyInfo.useInfo;
+		if (typeof useInfo !== "object" || Mix.empty(useInfo)) {
+			Mix.log("Sort code fail, param <useInfo> is empty or not an array");
+			return code;
+		}
+		try {
+			useInfo.sort(function(a, b){
+				var retVal	= 0;
+				if (a.price === b.price) {
+					retVal	= b.reduce - a.reduce;
+				} else {
+					retVal	= a.price - b.price;
+				}
+				return retVal;
+			});
+			// Use the best code between the less price code and before trying used code
+			if (useInfo[0].reduce > 0 && useInfo[0].price <= Context.applyInfo.originalPrice) {
+				code	= useInfo[0].code;
+			} else if (Context.applyInfo.prevCode) {
+				code	= Context.applyInfo.prevCode;
+			}
+		} catch (e) {
+			Mix.log("Sort code by price error", e);
+		}
+		return code;
 	},
 	
 	applyCode: function(code, inputXpath, submitXpath, loopFun) {
@@ -280,7 +344,7 @@ var Context	= {
 		
 		loopTimes++;
 		
-		if (Context.applyType	== VERIFY_TYPE_AJAX) {
+		if (Context.applyType	=== VERIFY_TYPE_AJAX) {
 			loopHandle	= setTimeout(loopFun, Context.intervalTime);
 		}
 	},
@@ -290,8 +354,8 @@ var Context	= {
 		if (Mix.empty(href, true)) return ;
 		
 		href	= href.replace(/\s|\r|\n|\t/g, '');
-		if (href.indexOf('http') != -1 || href.indexOf('javascript:void') == 0 
-			|| href.indexOf('javascript:;') == 0 || href.indexOf('javascript:(') == 0) {
+		if (href.indexOf('http') !== -1 || href.indexOf('javascript:void') === 0 
+			|| href.indexOf('javascript:;') === 0 || href.indexOf('javascript:(') === 0) {
 			return ;
 		}
 		href	= href.replace("javascript:", '');
@@ -308,9 +372,19 @@ var Context	= {
 		if (!Context.isInject) return ;
 		
 		Context.getApplyInfo(function(applyInfo){
-			if (!applyInfo.status || applyInfo.domain != Context.reqData.domain) {
+			// If excute time greate than 100 seconds, clear storage apply info
+			if (applyInfo && applyInfo.startTime > 0) {
+				var curTime	= (new Date()).getTime();
+				var subTime	= Context.getSubTime(curTime, applyInfo.startTime);
+				if (subTime > 300) {
+					Context.clearApplyInfo();
+					return;
+				}
+			}
+			
+			if (!applyInfo.status || applyInfo.domain !== Context.reqData.domain) {
 				// applyInfo.status != 'checking' &&
-				if (applyInfo.status != 'checking' && Context.applyInfo.status == 'start' && !Context.hasAppendDom) {
+				if (applyInfo.status !== 'checking' && Context.applyInfo.status === 'start' && !Context.hasAppendDom) {
 					Animate.showMain();
 				}
 				return ;
@@ -320,12 +394,13 @@ var Context	= {
 			applyInfo.codeIndex = curCodeIndex;
 			Context.applyInfo	= applyInfo;
 			
-			if (applyInfo.status == 'checking') { 
+			if (applyInfo.status === 'checking') { 
 				if (applyInfo.codeIndex < applyInfo.count) {
+					Context.setEndTime(true);
 					Animate.showProcess();
 				}
 				setTimeout(Context.execute, 1000);
-			} else if (applyInfo.status == 'finish') {
+			} else if (applyInfo.status === 'finish') {
 				Animate.showResult();
 			}
 		});
@@ -337,22 +412,22 @@ var Context	= {
 			return this;
 		}
 		
-//		// If don't get code input box, stop inject
-//		var inputDom	= Context.getXpathDom(Context.reqData.pageRegular.inputXpath);
-//		if (!inputDom) return this;
-		
-		$("body").append(Html.getPopup());
+		$("body").append(Html.getMain());
 		Context.isInject	= true;
-		var appendDom		= Context.getXpathDom(Context.reqData.pageRegular.appendXpath);
-		
-		// If don't get appendXpath refer's dom, stop execute 
-		if (!appendDom) {
-			Context.hasAppendDom	= false;
-			$("body").append(Html.getMain());
-		} else {
-			Context.hasAppendDom	= true;
-			$(appendDom).append(Html.getBtn());
-		}
+//		var appendDom		= null;
+//		var appendXpath		= Context.reqData.pageRegular.appendXpath;
+//		if (!Mix.empty(appendXpath)) {
+//			appendDom	= Context.getXpathDom(appendXpath);
+//		}
+//		
+//		// If don't get appendXpath refer's dom, stop execute 
+//		if (!appendDom) {
+//			Context.hasAppendDom	= false;
+//			$("body").append(Html.getMain());
+//		} else {
+//			Context.hasAppendDom	= true;
+//			$(appendDom).append(Html.getBtn());
+//		}
 		
 		return this;
 	},
@@ -382,11 +457,11 @@ var Context	= {
 	getXpathDom: function(xpath) {
 		var node	= null;
 		if (Mix.empty(xpath)) {
-			Mix.log("Xpath is empty, stop get xpath refer dom !!");
+			Mix.log("Xpath is empty, stop get xpath refer dom !!", xpath);
 			return node;
 		}
 		
-		if (typeof xpath == "string"){
+		if (typeof xpath === "string"){
 			// appendXpath is a string
 			try {
 				node	= document.evaluate(xpath, document, null, XPathResult.UNORDER_NODE_ITERATOR_TYPE, null).iterateNext();
@@ -418,7 +493,7 @@ var Context	= {
 		Data.tabUrl	= Context.reqData.url;
 		Data.tabId	= Context.reqData.tabId;
 		chrome.extension.sendRequest(Data, function(Res){
-			if (typeof callback == "function") {
+			if (typeof callback === "function") {
 				callback(Res);
 			}
 		});
@@ -437,6 +512,10 @@ var Context	= {
 		Context.initApplyInfo();
 	},
 	
+	gotoCM: function() {
+		Context.sendRequest({reqType: 'openLink', tagUrl: 'http://www.couponmountain.com/'});
+	},
+	
 	getPrice: function(xpath) {
 		var price	= 0;
 		if (Mix.empty(xpath)) {
@@ -444,7 +523,7 @@ var Context	= {
 			return price;
 		}
 		
-		if (typeof xpath == "string") {
+		if (typeof xpath === "string") {
 			price	= Context.countNumArr(Context.getXpathText(xpath));
 		} else {
 			for (var i in xpath) {
@@ -456,14 +535,14 @@ var Context	= {
 		return price;
 	},
 	
-	countNumArr: function (numArr) {
+	countNumArr: function(numArr) {
 		var count	= 0;
 		if (Mix.empty(numArr, true)) {
 			Mix.log("numArr is empty, no need count");
 			return count;
 		}
 		
-		if (typeof numArr == "object") {
+		if (typeof numArr === "object") {
 			var tmp	= 0;
 			var item = '';
 			for (var i in numArr) {
@@ -483,12 +562,12 @@ var Context	= {
 		return count;
 	},
 	
-	getDollarSymbol: function (str) {
+	getDollarSymbol: function(str) {
 		var symbolArr	= ['$','€','£','¥','₣','₩'];
 		var symbol = '';
 		if (!str) return symbol;
 		for (var i in symbolArr) {
-			if (str.indexOf(symbolArr[i]) != -1) {
+			if (str.indexOf(symbolArr[i]) !== -1) {
 				symbol	= symbolArr[i];
 				break;
 			}
@@ -497,125 +576,226 @@ var Context	= {
 	},
 	
 	// Fix JS  bug (like: 0.93 - 0.33)
-	getReduce: function (num1, num2) {
-		return (num1 * 1000 - num2 * 1000) / 1000;
+	getReduce: function(num1, num2) {
+		var reduce	= num1 - num2;
+		if (reduce.toString().length > 10) {
+			reduce	= (num1 * 100 - num2 * 100) / 100;
+			if (reduce.toString().length > 10) {
+				reduce	= (Math.round(num1 * 100) - Math.round(num2 * 100)) / 100;
+			}
+		}
+		return reduce;
 	},
 	
-	sortCode: function (useInfo) {
-		if (typeof useInfo != "object" || Mix.empty(useInfo)) {
-			Mix.log("Sort code fail, param <useInfo> is empty or not an array");
-			return useInfo;
+	getSubTime: function(time1, time2) {
+		var sub	= time1 - time2;
+		if (sub > 0) {
+			sub	= sub / 1000;
 		}
-		useInfo.sort(function(a, b){
-			return b.reduce - a.reduce;
-		});
-		return useInfo;
+		return Math.round(sub);
+	},
+	
+	setEndTime: function(isForce) {
+		if (isForce || !curApplyTime || Context.reqData.pageRegular.applyType === VERIFY_TYPE_AJAX) {
+			curApplyTime	= (new Date()).getTime();
+			Context.applyInfo.endTime	= curApplyTime;
+		}
+	},
+	
+	getTimeLeft: function() {
+		var leftSec	= 0;
+		if (!Context.applyInfo || !Context.applyInfo.count) return leftSec;
+		var data	= Context.applyInfo;
+		if (data.codeIndex < 1) {
+			leftSec	= data.count * 6;
+		} else {
+			var avgTime	= Context.getSubTime(data.endTime, data.startTime) / data.codeIndex;
+			if (data.codeIndex >= data.count) {
+				leftSec = avgTime;
+			} else {
+				leftSec	= avgTime * (data.count - data.codeIndex);
+			}
+		}
+		leftSec	= Math.round(leftSec);
+		return leftSec;
 	}
 	
 };//End Context object
 
 
 var Html = {
+	buildPopup: function(innerHtml) {
+		var html	= '\
+			<div class="cmus_popup_wp">\
+				<div class="cmus_popup">\
+					<div class="cmus_popup_mask"></div>\
+					<div class="cmus_popup_close"></div>\
+					<div class="cmus_popup_content">\
+						<div class="cmus_coupon">\
+						';
+			html	+= innerHtml;
+			html	+= '\
+						</div>\
+						<div class="cmus_tips"><div>Fun Fact:</div> Consumers saved $3.7 billion using coupons in 2010.</div>\
+					</div>\
+				</div>\
+			</div>\
+						';
+		return html;
+	},
+	
 	getMain: function() {
 		var count	= Context.reqData.count;
-		var text	= 'Coupon Digger has found '+ count;
-			text	+= count > 1 ? ' coupons' : ' coupon';
-			text	+= ' on '+ Context.reqData.merName +'<br />';
-			text	+= 'Want to try '+ (count > 1 ? 'them?' : 'it?');
-		var html	= '<div id="cmus_main">';
-			html	+= '  <div>'+ text +'</div>';
-			html	+= '  <div class="cmus_main_button"><span id="cmus_autoApplyBtn">[Yes]</span><span id="cmus_closeMainBtn">[No]</span></div>';
-			html	+= '</div>';
+		var coupon	= count > 1 ? ' coupons' : ' coupon';
+		var innerHtml	= '\
+			<div class="cmus_cmlogo"></div>\
+			<div class="cmus_choose">\
+				<div class="cmus_message">\
+					Coupon Digger has found <div class="cmus_coupontotal">'+count+'</div> '+coupon+' <br />on \
+					<div class="cums_storename">'+Context.reqData.merName+'.</div>\
+				</div>\
+				<div class="cmus_findsavings">Find My Savings?</div>\
+				<div class="cmus_choose_but">\
+					<div class="cmus_but_yes" id="cmus_autoApplyBtn"><div>Yes</div></div>\
+					<div class="cmus_but_no" id="cmus_closeMainBtn"><div>No</div></div>\
+				</div>\
+			</div>\
+						';
+		var html	= Html.buildPopup(innerHtml);	
 		return html;
 	},
 	
-	getBtn: function() {
-		var html	= '<div id="cmus_autoApplyBtn">';
-			html	+= 'Click for saving money!';
-			html	+= '</div>';
-		return html;
-	},
-	
-	getPopup: function() {
-		var html	= '<div id="cmus_lightbox_cover"></div>';
-		html		+= '<div id="cmus_lightbox_popup">';
-		html		+= '  <div class="cmus_lightbox_container">';
-		html		+= '    <div class="cmus_lightbox_close"><img src="http://myweb.com/test/plugin/images/close.png"></div>';
-		html		+= '    <div class="cmus_lightbox_content"></div>';
-		html		+= '  </div>';
-		html		+= '</div>';
-		return html;
-	}
-};//End Html object
-
-
-var Animate = {
-	showMain: function() {
-		$("#cmus_lightbox_cover").show();
-		$("#cmus_main").show();
-	},
-	hideMain: function() {
-		$("#cmus_main").hide();
-		$("#cmus_lightbox_cover").hide();
-	},
-	showPopup: function() {
-		$("#cmus_lightbox_cover").show();
-		$("#cmus_lightbox_popup").show();
-	},
-	hidePopup: function() {
-		$("#cmus_lightbox_cover").hide();
-		$("#cmus_lightbox_popup").hide();
-		Context.clearApplyInfo();
-	},
-	
-	showResult: function() {
-		Animate.showPopup();
-		var appInfo		= Context.applyInfo;
-		var origPrice	= appInfo.originalPrice;
-		var finalPrice	= appInfo.finalPrice;
-		var reduce		= Context.getReduce(origPrice, finalPrice);
-		var symbol		= appInfo.symbol ? appInfo.symbol : '$';
-		var content		= "Trying code(s) count: <b>" + appInfo.count + "</b><br /> Before use code: <b>" + symbol + origPrice + "</b>";
-			content		+= "<br /> After use code: <b>"+ symbol + finalPrice + '</b>';
-//		if (!reduce && appInfo.discount) {
-//			reduce	= appInfo.discount;
-//		} else if (reduce && !appInfo.discount) {
-//			Context.applyInfo.discount	= reduce;
-//		}
-		if (reduce > 0) {
-			if(!appInfo.discount) Context.applyInfo.discount	= reduce;
-			content	= '<span style="font-size:14px;"><b>Congratulations</b>';
-			content	+= '<br /><b>you saved "'+ symbol + reduce +'" dollars by code "'+ appInfo.applyCode +'"</b>';
-			content	+= '<br /> Original price: ' + symbol + origPrice;
-			content	+= '<span style="margin-left:15px">Latest price: ' + symbol + finalPrice + '</span>';
-		} else {
-			content = '<span style="font-size:16px;">Sorry, No coupon found</span>';
-		}
-		$(".cmus_lightbox_content").html(content);
-	},
-	
-	showProcess: function() {
-		Animate.showPopup();
+	getProcess: function() {
 		var appInfo		= Context.applyInfo;
 		var origPrice	= appInfo.originalPrice;
 		var finalPrice	= appInfo.finalPrice;
 		var curNum		= appInfo.codeIndex + 1;
 		var symbol		= appInfo.symbol ? appInfo.symbol : '$';
 		var count		= appInfo.count;
-		if (curNum > count) curNum = count;
-		var content		= "Trying codes " + curNum + " of " + count;
-		if (origPrice) {
-			content	+= "<br /> Original price: " + symbol + origPrice;
-			if (!finalPrice) finalPrice	= origPrice;
-			content	+= '<span style="margin-left:15px">Latest price: ' + symbol + finalPrice + '</span>';
+		var timeLeft	= Context.getTimeLeft();
+		if (curNum < 1) {
+			curNum	= 1;
+		} else if (curNum > count) {
+			curNum = count;
 		}
-		$(".cmus_lightbox_content").html(content);
+		var percent		= Math.round((curNum - 1) / count * 100);
+		var innerHtml	= '\
+			<div class="cmus_cmlogo"></div>\
+			<div class="cmus_tryingcodes">\
+				<div class="cmus_message">Finding you the <div>BIGGEST</div> savings!</div>\
+				<div class="cmus_process">\
+					<div class="cmus_process_title">Trying codes <div>'+curNum+'</div> of <div class="cmus_coupontotal">'+count+'</div></div>\
+					<div class="cmus_process_bar">\
+						<div class="cmus_process_bar_content">\
+							<div class="cmus_process_percent" style="width: '+percent+'%;"></div>\
+						</div>\
+					</div>\
+					<div class="cmus_process_bottom">\
+						<div class="cmus_process_stop">Stop Saving</div>\
+						<div class="cmus_process_timeremain">Est. Time Remaining: <div>'+timeLeft+'s</div></div>\
+					</div>\
+				</div>\
+				<div class="cmus_savemoney">Original Price: <div class="cmus_originalprice">'+symbol+origPrice+'</div>    \
+					Latest Price: <div class="cmus_latestprice">'+symbol+finalPrice+'</div></div>\
+			</div>\
+							';
+		return innerHtml;
+	}, 
+	
+	getApply: function() {
+		var innerHtml	= '\
+			<div class="cmus_cmlogo"></div>\
+			<div class="cmus_finish">\
+				<div class="cmus_message">We found you savings!</div>\
+				<div class="cmus_applyingcode">\
+					We\'re automatically applying<br />\
+					“ <div>'+Context.applyInfo.applyCode+'</div> ” for you.\
+				</div>\
+				<div class="cmus_process">\
+					<div class="cmus_process_bar">\
+						<div class="cmus_process_bar_content">\
+							<div class="cmus_process_percent" style="width: 100%;"></div>\
+						</div>\
+					</div>\
+				</div>\
+			</div>\
+						';
+		return innerHtml;
+	},
+	
+	getCongratulation: function(savePrice, origPrice, finalPrice) {
+		var innerHtml	= '\
+			<div class="cmus_cmlogo"></div>\
+			<div class="cmus_congratulations">\
+				<div class="cmus_congratulations_title">Congratulations</div>\
+				<div class="cmus_message">\
+					You just saved <div class="cmus_saved">'+savePrice+'</div> with Coupon Digger.\
+				</div>\
+				<div class="cmus_savemoney">Original Price: <div class="cmus_originalprice">'+origPrice+'</div>    \
+					Latest Price: <div class="cmus_latestprice">'+finalPrice+'</div></div>\
+				<div class="cmus_share_but">\
+					<div class="cmus_but_facebook"></div>\
+					<div class="cmus_but_twitter"></div>\
+					<div class="cmus_but_email"></div>\
+				</div>\
+			</div>\
+							';
+		return innerHtml;
+	},
+	
+	getSorry: function() {
+		var innerHtml	= '\
+			<div class="cmus_cmlogo"></div>\
+			<div class="cmus_sorry">\
+				<div class="cmus_message">\
+					No coupons currently available for<br />\
+					this order. Check out <div class="cmus_cmlink">Coupon Mountain</div><br />\
+					to find other savings.\
+				</div>\
+			</div>\
+							';
+		return innerHtml;
+	}
+	
+};//End Html object
+
+
+var Animate = {
+	showMain: function() {
+		$(".cmus_popup_wp").show();
+	},
+	hideMain: function() {
+		$(".cmus_popup_wp").hide();
+		Context.clearApplyInfo();
+	},
+	
+	showResult: function() {
+		var appInfo		= Context.applyInfo;
+		var origPrice	= appInfo.originalPrice;
+		var finalPrice	= appInfo.finalPrice;
+		var reduce		= Context.getReduce(origPrice, finalPrice);
+		var symbol		= appInfo.symbol ? appInfo.symbol : '$';
+		var innerHtml	= '';
+		if (reduce > 0) {
+			if(!appInfo.discount) Context.applyInfo.discount	= reduce;
+			innerHtml	= Html.getCongratulation(symbol+reduce, symbol+origPrice, symbol+finalPrice);
+		} else {
+			innerHtml	= Html.getSorry();
+		}
+		$(".cmus_coupon").html(innerHtml);
+		Animate.showMain();
+	},
+	
+	showProcess: function() {
+		var innerHtml	= Html.getProcess();
+		$(".cmus_coupon").html(innerHtml);
+		Animate.showMain();
 	},
 	
 	showApply: function() {
-		Animate.showPopup();
-		var content		= 'Finish. The best coupon is "' + Context.applyInfo.applyCode + '", automatically apply for you';
-		$(".cmus_lightbox_content").html(content);
+		var innerHtml	= Html.getApply();
+		$(".cmus_coupon").html(innerHtml);
+		Animate.showMain();
 	}
 };//End Animate object
 
@@ -630,7 +810,7 @@ if (IS_INJECT_CONTENT_PAGE) {
 	IS_INJECT_CONTENT_PAGE	= true;
 	
 	chrome.extension.onRequest.addListener(function(Request, sender, sendResponse) {
-		if (!Request || (!Request.reqType && !Request.pageType) || Request.ret != 0) {
+		if (!Request || (!Request.reqType && !Request.pageType) || Request.ret !== 0) {
 			sendResponse({ret: -1});
 			return ;
 		}
@@ -648,7 +828,7 @@ if (IS_INJECT_CONTENT_PAGE) {
 $(document).ready(function(){
 	Context.init();
 	$("#cmus_autoApplyBtn").live("click", Context.execute);
-	$(".cmus_lightbox_close").live("click", Animate.hidePopup);
-	$("#cmus_closeMainBtn").live("click", Animate.hideMain);
+	$("#cmus_closeMainBtn, .cmus_popup_close, .cmus_process_stop").live("click", Animate.hideMain);
+	$(".cmus_cmlink").live("click", Context.gotoCM);
 });
 

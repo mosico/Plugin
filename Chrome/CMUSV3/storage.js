@@ -9,6 +9,20 @@ var Storage = {
 		return ret;
 	},
 	
+	save: function(key, value) {
+		if (Mix.empty(key, true)) {
+			return false;
+		}
+		return window.localStorage.setItem(key, value);
+	},
+	
+	get: function(key) {
+		if (Mix.empty(key, true)) {
+			return false;
+		}
+		return window.localStorage.getItem(key);
+	},
+	
 	
 	/****************************************   String storage <start>   *******************************************/
 	saveString: function(key, value, isNoEmpty) {
