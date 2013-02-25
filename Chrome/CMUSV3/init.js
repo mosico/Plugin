@@ -6,13 +6,6 @@ chrome.extension.onRequest.addListener(function(Request, sender, sendResponse) {
 	var tabId	= Request.tabId ? Request.tabId : 0;
 	var retVal	= 0;
 	switch (Request.reqType) {
-		case "copyCode":
-			var res	= false;
-			if (Request.code.length > 0) {
-				res	= Mix.copy(Request.code);
-			}
-			sendResponse({ret:res});
-			break;
 		case "storeApplyInfo":
 			retVal	= Storage.saveApplyInfo(Request.info);
 			retVal	= retVal ? 0 : -1;
@@ -33,67 +26,10 @@ chrome.extension.onRequest.addListener(function(Request, sender, sendResponse) {
 			retVal	= Storage.get(Request.key, Request.value);
 			sendResponse({ret: retVal});
 			break;
-		case "getClickedMerId":
-			var merIds	= Storage.getClickedPushMerId();
-			sendResponse({ret: 0, merIds: merIds});
-			break;
-		case "pushClick":
-			Storage.saveClickedPushMerId(Request.merId);
-			// Open tagUrl
-			chrome.tabs.create({url: Request.tagUrl, active: true});
-			Ajax.sendPushClick(tabUrl, tabId, Request.merId, function(Data){
-				sendResponse(Data);
-			});
-			break;
-		case "removeClickedMerId":
-			var result	= Storage.removeClickedPushMerId(Request.merId);
-			retVal	= result ? 0 : -1;
-			sendResponse({ret: retVal});
-			break;
-		case "getSeNumCoupon":
-			chrome.tabs.get(tabId, function(tab){
-				Ajax.getUrlCoupon(Request.tagUrl, tab.id, tab.windowId, false, true, function(Data){
-					sendResponse(Data);
-				});
-			});
-			break;
-		case "addFavorite":
-			Ajax.addFavorite(tabUrl, tabId, Request.merId, function(Data){
-				sendResponse(Data);
-			});
-			break;
-		case "removeFavorite":
-			Ajax.removeFavorite(tabUrl, tabId, Request.merId, function(Data){
-				sendResponse(Data);
-			});
-			break;
-		case "getFavorites":
-			Ajax.getFavorite(tabUrl, tabId, function(Data){
-				Data.status	= Storage.getPushStatus();
-				sendResponse(Data);
-			});
-			break;
-		case "snoozePush":
-			Ajax.snoozeFavorite(tabUrl, tabId, Request.merId, Request.snoozeTime, function(Data){
-				sendResponse(Data);
-			});
-			break;
 		case "logErrorXpath":
 				Ajax.sendErrorXpath(tabUrl, tabId, Mix.formatErrorXpath(Request.error), Request.merRuleId, function(Data){
 					sendResponse(Data);
 				});
-			break;
-		case "turnOnPush":
-			var ret	= Storage.savePushStatus("on");
-			if (ret) Init.setIntevalPush();
-			retVal	= ret ? 0 : -1;
-			sendResponse({ret: retVal});
-			break;
-		case "turnOffPush":
-			var ret2	= Storage.savePushStatus("off");
-			if (ret2) Init.clearIntevalPush();
-			retVal	= ret2 ? 0 : -1;
-			sendResponse({ret: retVal});
 			break;
 		case "reloadCoupon":
 			Coupon.reloadCoupon();
@@ -130,7 +66,6 @@ var Init = {
 				Init.openTutorial();
 				Init.saveJsFile();
 				Init.saveCssFile();
-//				Init.pushCoupon();
 			}
 			
 			Init.setIntevalExec();
@@ -202,30 +137,6 @@ var Init = {
 	},
 	clearIntevalCSS: function() {
 		clearTimeout(Init.reqCSSHandle);
-	},
-	
-	setIntevalPush: function() {
-		Init.reqPushHandle	= setTimeout(Init.pushCoupon, Storage.getReqPushTime());
-	},
-	clearIntevalPush: function() {
-		clearTimeout(Init.reqPushHandle);
-	},
-	
-	pushCoupon: function() {
-		Mix.log("Push coupon");
-		if (Storage.getPushStatus() == "off") return ;
-		Init.clearIntevalPush();
-		
-		chrome.tabs.getSelected(null, function(tab){
-			if (!tab.url || tab.url.indexOf("http") !== 0) { return ;}
-			
-			// Request push coupons
-			Ajax.getPushCoupon(tab.url, tab.id, function(Res){
-				Res.reqType	= PT_UPDATE_PUSH;
-				chrome.tabs.sendRequest(tab.id, Res);
-			});
-		});
-		Init.setIntevalPush();
 	}
 };
 
