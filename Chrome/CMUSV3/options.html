@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Plugin Popup</title>
+<style>
+*{ margin:0; padding:0}
+body{ font-family:Georgia, "Times New Roman", Times, serif; font-size:12px; color:#000; background:url(images/bg.jpg) repeat 0 0;}
+#pagewrapper{ background:url(images/setting_header_bg.png) repeat-x 0 0; height:1000px;}
+.header{ max-width:880px; min-width:590px; height:113px; margin:0 auto; background:url(images/setting_cloud_bg.png) no-repeat right 8px;}
+.header .cmus_logo{ width:336px; height:32px; padding:36px 0 28px 0; float:left; margin:0 0 0 20px; background:url(images/cmus_cmlogo.png) no-repeat 0 32px;}
+.setting_form{ width:400px; margin:0 auto; padding:50px 0 0 0;}
+.setting_form h1{ font-size:28px; text-shadow:1px 1px 1px rgba(255, 255, 255, 1); padding-bottom:40px; text-align:center;}
+.setting_form .formitem{ clear:both; margin-bottom:20px; font-size:16px;}
+.setting_form .formitem label{ display:block; text-align:right; float:left; width:175px; line-height:42px; padding-right:10px;font-size:22px; text-shadow:1px 1px 1px rgba(255, 255, 255, 1);}
+.setting_form .formitem input.settingtxt{ width:68px; text-align:center; padding:5px 0; height:22px; font-size:22px; color:#1aace8; font-weight:bold; outline:none; background:#fff; border:0; border-radius:3px; margin:5px 10px 5px 4px; box-shadow:1px 1px 6px rgba(0, 0, 0, 0.3)}
+.setting_form .formitem span.unselected{ display:block; float:left; width:42px; height:43px; border:0; background:url(images/setting_pause_but.png) no-repeat 0 0; cursor:pointer; outline:none;}
+.setting_form .formitem span.selected{ display:block; float:left; width:42px; height:43px; border:0; background:url(images/setting_pause_but.png) no-repeat -59px 0; cursor:pointer; outline:none;}
+.setting_form .submitbox{ padding-top:30px; clear:both;}
+.setting_form .submitbox div.cmus_but_yes{ background:#19aae7; border:#18a5e1 1px solid; border-radius:4px; width:88px; height:28px; text-align:center; margin:0 auto;box-shadow:#aaa 1px 1px 7px; cursor:pointer;}
+.setting_form .submitbox div.cmus_but_yes div{ border-radius:4px;line-height:26px; font-size:18px; color:#fff; text-shadow:#0d4b65 1px 0 3px; border:#19aae7 1px solid; border-top:#63c5ef 1px solid; text-align:center;}
+.setting_form .alertmsg{ padding:25px 0; text-align:center; font-style:italic; height:17px;}
+.setting_form .alertmsg span{ display:none; }
+.pluginversion{ text-align:right; padding:30px 20px 30px 0; font-size:11px; color:#333; font-family:arial; max-width:880px; min-width:390px; margin:0 auto; }
+</style>
+</head>
+<body>
+<div id="pagewrapper">
+	<div class="header">
+    	<div class="cmus_logo"></div>
+    </div>
+    <div class="setting_form">
+    	<form>
+        	<h1>Coupon Digger Settings</h1>
+            <div class="formitem">
+            	<label>Interval Time:</label>
+                <input type="text" value="0" class="settingtxt" id="intervalTime" />Seconds
+            </div>
+            <!-- div class="formitem">
+            	<label>Max Exec Time:</label>
+                <input type="text" value="300" class="settingtxt" id="maxExecTime" />Seconds (>=100s)
+            </div -->
+            <div class="formitem">
+            	<label>Pause Switch:</label>
+                <span class="unselected" id="pauseSwitch"></span>
+            </div>
+            <div class="submitbox">
+                <div class="cmus_but_yes" id="saveOptions"><div>Save</div></div>
+            </div>
+			<div class="alertmsg"><span id='saveMsg'>Your changes have been saved.</span></div>
+        </form>
+    </div>
+    <div class="pluginversion"><strong>Version:</strong> <span id="version">1.0.2013.305</span></div>
+</div>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="const.js"></script>
+<script type="text/javascript" src="Mix.js"></script>
+<script type="text/javascript" src="storage.js"></script>
+<script type="text/javascript" src="options.js"></script>
+</body>
+</html>
