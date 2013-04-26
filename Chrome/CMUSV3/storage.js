@@ -84,10 +84,10 @@ var Storage = {
 		try {
 			var value	= window.localStorage.getItem(key);
 			value		= parseInt(value);
-			if (!Number.isNaN(value)) {
-				number	=  value;
-			} else if (typeof defaultVal != "undefined") {
-				number	= defaultVal;
+			if (Number.isNaN(value) && typeof defaultVal != "undefined") {
+				number	=  defaultVal;
+			} else {
+				number	= value;
 			}
 		} catch(e) {
 			Mix.log("Get <localStorage>String false, key:"+ key, e);
@@ -259,38 +259,6 @@ var Storage = {
 	// Save request push merchant coupon interval time
 	saveReqPushTime: function(time) {
 		return this.saveNumber("reqPushTime", time);
-	},
-	
-	// Auto apply one code interval time
-	getCodeTime: function() {
-		return this.getNumber("eachCodeTime");
-	},
-	saveCodeTime: function(time) {
-		return this.saveNumber("eachCodeTime", time);
-	},
-	
-	// Max apply all codes time
-	getMaxExecTime: function() {
-		return this.getNumber("maxExecTime");
-	},
-	saveMaxExecTime: function(time) {
-		return this.saveNumber("maxExecTime", time);
-	},
-	
-	// Pause applying code status, pause or continue
-	getPauseStatus: function() {
-		return this.getNumber("pauseStatus");
-	},
-	savePauseStatus: function(status) {
-		return this.saveNumber("pauseStatus", status);
-	},
-	
-	// Pause applying code switch, on or off
-	getPauseSwitch: function() {
-		return this.getNumber("pauseSwitch");
-	},
-	savePauseSwitch: function(status) {
-		return this.saveNumber("pauseSwitch", status);
 	},
 	
 	/**************************************************************************************************************

@@ -14,14 +14,7 @@ var RET_UUID_NO_ALERT = -20;
 var RET_POPUP_WINDOW = -22;		// Visiting page is popup window
 var RET_SNOOZE_COUPON = -30;	// Use coupon snooze
 
-// Apply code time
-var APPLY_MAX_TIME	= 300;
-var APPLY_MIN_TIME	= 100;
-var APPLY_CODE_TIME	= 6;
-var APPLY_PAUSE_STATUS	= 0;
-var APPLY_BREAK_TIME	= 20000;
-
-//User current view page url type
+// User current view page url type
 var PT_NORMAL_PAGE	= 0;
 var PT_DETAIL_PAGE	= 1;
 var PT_CART_PAGE	= 2;
@@ -42,22 +35,61 @@ var MT_OFF_LINE = 1;
 var	VERIFY_TYPE_REFLASH	= 'REFLASH';
 var	VERIFY_TYPE_AJAX	= 'AJAX';
 
+//Alert type
+var ALERT_ADD_MERCHANT = 1;    // Add new merchant coupon alert
+var ALERT_GET_UPDATED = 2;     // Get uuid refer merchant updated coupon
+var ALERT_CANCEL_NOTIFY = 3;   // Tuen off merchant coupon notification
+var ALERT_GET_DOMAINS = 4;     // Get uuid refer's all turn on merchant domains
+
+// Product name match rate
+var MATCH_NAME_RATE = 0.8;
+
 // Plugin get coupon request server file url
-var REQUEST_COUPON_URL	= "http://www.couponmountain.com/plugin/getCoupon.html";
+var REQUEST_COUPON_URL = "http://www.couponmountain.com/plugin/getCoupon.html";
+// Get search engine item urls are coupon, request server url
+var REQUEST_SE_ITEM_COUPON_URL = "http://www.couponmountain.com/plugin/searchEngine.html";
+// Off line match product coupon url
+var REQUEST_PRODUCT_COUPON_URL = "http://www.couponmountain.com/plugin/getCouponByProdName.html";
+// Push new/favoriter coupon(s) everyday 
+var REQUEST_PUSH_URL = "http://www.couponmountain.com/plugin/push.html";
+// Send error xpath to service
+var SEND_ERROR_XPATH = "http://www.couponmountain.com/plugin/error.html";
+// Add merchant to favorite
+var ADD_MERCHANT_TO_FAVORITE = "http://www.couponmountain.com/plugin/addFavorite.html";
+// Remove a merchant from favorite list
+var REMOVE_FAVORITE_MERCHANT = "http://www.couponmountain.com/plugin/removeFavorite.html";
+// Show user's all favorite merchants
+var SHOW_FAVORITE_MERCHANT = "http://www.couponmountain.com/plugin/showFavorite.html";
+// Snooze merchant coupon push
+var SNOOZE_FAVORITE_URL = "http://www.couponmountain.com/plugin/snooze.html";
+// Push click 
+var PUSH_CLICK_URL = "http://www.couponmountain.com/plugin/pushClick.html";
+// Online match product page's coupon
+var MATCH_DETAIL_PAGE_COUPON_URL = "http://www.couponmountain.com/plugin/match.html";
 // Request plugin initial const such as: interval request time
-var REQUEST_INIT_URL	= "http://www.couponmountain.com/plugin/init.html";
+var REQUEST_INIT_URL = "http://www.couponmountain.com/plugin/init.html";
 // Content page JS file
-var REQUEST_JS_URL		= "http://files.couponmountain.com/js/default/chrome/default_v3.1.js";
+var REQUEST_JS_URL = "http://files.couponmountain.com/js/default/chrome/default.js";
 // Plugin showing CSS file
-var REQUEST_CSS_URL		= "http://files.couponmountain.com/css/default/chrome/default_v3.1.css";
-// Log use info
-var LOG_USE_INFO_URL	= "http://www.couponmountain.com/plugin/adduseinfo.html";
+var REQUEST_CSS_URL = "http://files.couponmountain.com/css/default/chrome/default.css";
 
 
-//REQUEST_COUPON_URL	= "http://mamsweb101.dev.wl.mezimedia.com:8081/Coupon/getCoupon.html";
-REQUEST_JS_URL		= "http://dev5.couponmountain.com/js/default/chrome/default_v3.1.js";
-//REQUEST_CSS_URL		= "http://dev5.couponmountain.com/css/default/chrome/default_v3.1.css";
-//LOG_USE_INFO_URL	= "http://mamsweb101.dev.wl.mezimedia.com:8081/Coupon/adduseinfo.html";
+REQUEST_COUPON_URL = "http://mamsweb101.dev.wl.mezimedia.com:8081/Coupon/getCoupon.html";
+//REQUEST_SE_ITEM_COUPON_URL = "http://mamsweb101.dev.wl.mezimedia.com:8088/Coupon/searchEngine.html";
+//REQUEST_PRODUCT_COUPON_URL = "http://mamsweb101.dev.wl.mezimedia.com:8088/Coupon/getCouponByProdName.html";
+//REQUEST_PUSH_URL = "http://mamsweb101.dev.wl.mezimedia.com:8088/Coupon/push.html";
+//SEND_ERROR_XPATH = "http://mamsweb101.dev.wl.mezimedia.com:8088/Coupon/error.html";
+//ADD_MERCHANT_TO_FAVORITE = "http://mamsweb101.dev.wl.mezimedia.com:8088/Coupon/addFavorite.html";
+//REMOVE_FAVORITE_MERCHANT = "http://mamsweb101.dev.wl.mezimedia.com:8088/Coupon/removeFavorite.html";
+//SHOW_FAVORITE_MERCHANT = "http://mamsweb101.dev.wl.mezimedia.com:8088/Coupon/showFavorite.html";
+//SNOOZE_FAVORITE_URL = "http://mamsweb101.dev.wl.mezimedia.com:8088/Coupon/snooze.html";
+//PUSH_CLICK_URL = "http://mamsweb101.dev.wl.mezimedia.com:8088/Coupon/pushClick.html";
+//MATCH_DETAIL_PAGE_COUPON_URL = "http://mamsweb101.dev.wl.mezimedia.com:8088/Coupon/match.html";
+//REQUEST_INIT_URL = "http://mamsweb101.dev.wl.mezimedia.com:8088/Coupon/init.html";
+REQUEST_JS_URL = "http://dev5.couponmountain.com/js/default/chrome/default_v3.js";
+REQUEST_CSS_URL = "http://dev5.couponmountain.com/css/default/chrome/default_v3.css";
+//REQUEST_JS_URL = "http://myweb.com/test/plugin/default_v3.js";
+//REQUEST_CSS_URL = "http://myweb.com/test/plugin/default_v3.css";
 
 
 // Get xpath as soon as possble, Try param
