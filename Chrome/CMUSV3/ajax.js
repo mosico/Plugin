@@ -13,7 +13,8 @@ var Ajax = {
 			url: tabUrl,
 			tabId: tabId,
 			uuid: Storage.getUuid(),
-			version: Storage.getLastVersion()
+			version: Storage.getLastVersion(),
+			referType: 1
 		};
 		if (typeof paramObj == "object") {
 			$.extend(Param, paramObj);
@@ -24,6 +25,9 @@ var Ajax = {
 	request: function(url, reqType, data, dataType, callback, notShowResult) {
 		if (!reqType) reqType = "POST";
 		if (!dataType) dataType = "json";
+		// nocache
+		var nocachePara	= '_=' + (new Date().getTime());
+		url	+= (url.indexOf('?') === -1) ? '?' + nocachePara : '&' + nocachePara;
 		
 		Mix.log("XHR request data, reqType:"+ reqType +", dataType:"+ dataType, url, data);
 		var curXhr = $.ajax({
@@ -168,4 +172,9 @@ var Ajax = {
 		Param.merId	= merId;
 		this.request(PUSH_CLICK_URL, this.postType, Param, this.jsonData, callback);
 	},
+	// Log use info
+	sendUseInfo: function(tabUrl, tabId, info, callback) {
+		var Param	= this.getParam(tabUrl, tabId, info);
+		this.request(LOG_USE_INFO_URL, this.postType, Param, this.jsonData, callback);
+	}
 };

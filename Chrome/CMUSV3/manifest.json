@@ -1,6 +1,6 @@
 {
     "name": "Coupon Digger",
-    "version": "1.0.2013.225",
+    "version": "1.1.2013.4121",
     "manifest_version": 2,
     "description": "Easily find online coupon codes to use at all your favorite stores.",
     "icons": {"16": "images/16.png", "48": "images/48.png", "128": "images/128.png"},
@@ -8,10 +8,11 @@
     "background": {
         "page": "background.html"
     },
+	"options_page": "options.html",
     "content_scripts": [
         {
             "matches": ["http://*/*", "https://*/*"],
-            "js": ["jquery.js", "const.js", "mix.js"],
+            "js": ["jquery.js", "const.js", "mix.js", "checkLoad.js"],
             "run_at": "document_start"
         }
     ],
