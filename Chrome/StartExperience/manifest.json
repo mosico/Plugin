@@ -1,0 +1,27 @@
+{
+    "name": "Start Experience",
+    "version": "1.0",
+    "manifest_version": 2,
+    "description": "My first chrome extension, include popup/browserAction/notification.",
+    "icons": {"16": "images/24.png", "48": "images/48.png", "128": "images/128.png"},
+    "permissions": ["tabs", "notifications", "http://*/*", "https://*/*"],
+    "background": {
+        "page": "background.js"
+    },
+    "browser_action": {
+        "default_icon":  "images/24.png",
+        "default_title": "Start Experience",
+        "default_popup": "popup.html"
+    },
+    "content_scripts": [
+        {
+            "matches": ["http://*/*", "https://*/*"],
+            "js": ["content.js"],
+            "run_at": "document_start"
+        }
+    ],
+	"web_accessible_resources": [
+		"images/48.png"
+	],
+    "minimum_chrome_version": "18.0"
+}

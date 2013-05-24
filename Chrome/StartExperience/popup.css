@@ -1,0 +1,21 @@
+@CHARSET "UTF-8";
+
+body { width: 350px; padding: 10px; padding-left: 10px; margin-top: 0; padding-top: 0; }
+
+h3 { padding: 0; margin: 15px 0 3px 0; }
+.red { color: #F00; }
+.black { color: #000; }
+
+.category img { margin-right: 10px; cursor: pointer; padding-top: 3px; }
+
+.badge span, .notification span { font-size: 14px; font-weight: bold; color: rgb(156, 36, 40); cursor: pointer; margin-right: 25px; }
+.badge div { font-size: 14px; font-weight: bold; color: rgb(156, 36, 40); }
+.badge .badgeBgcolor { margin-top: 5px; }
+.badge .badgeBgcolor .red { color: #FFF; background-color: #F00;}
+.badge .badgeBgcolor .black { color: #FFF; background-color: #000; }
+
+
+.pageContent .dLink { font-size: 14px; font-weight: bold; color: rgb(156, 36, 40); cursor: pointer; padding-right: 25px; }
+.pageContent .dText { margin-left: 15px; display: none; }
+.pageContent #getUrl { margin-top: 10px; }
+.pageContent #setKw { margin-top: 10px; }
