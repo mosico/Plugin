@@ -3,6 +3,7 @@ using SHDocVw;
 using mshtml;
 using Microsoft.Win32;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace CouponDigger
 {
@@ -16,8 +17,8 @@ namespace CouponDigger
         WebBrowser webBrowser;
         HTMLDocument document;
         private const string GUID = "95531B9A-D1C5-4874-A3EE-7819EC33B461";
-        private const string CUR_VERSION = "1.0.2013.4253";
-        private const string JS_URL = "https://myplugin.com/ie/ie.js";
+        private const string CUR_VERSION = "1.0.2013.5103";
+        private const string JS_URL = "https://myplugin.com/ie/coupon_digger.js";
         private static string curUserId = "";
 
         private void OnDocumentComplete(object pDisp, ref object URL)
@@ -36,6 +37,109 @@ namespace CouponDigger
             this.InjectJS(JS_URL);
         }
 
+        /***************************   Get uuid from txt file   ************************************
+        private const string UUID_FILE = "C:\\Program Files\\CouponDigger\\uid.txt";
+        private string GetUserId()
+        {
+            if (String.IsNullOrEmpty(curUserId))
+            {
+                curUserId = Guid.NewGuid().ToString();
+                try
+                {
+                    curUserId = this.GetTxtUuid();
+                }
+                catch (Exception)
+                {
+                    curUserId = Guid.NewGuid().ToString();
+                }
+            }
+
+            return curUserId;
+        }
+
+        public string GetTxtUuid()
+        {
+            string uuid = "";
+            if (System.IO.File.Exists(UUID_FILE))
+            {
+                StreamReader srReadFile = new StreamReader(UUID_FILE);
+                uuid = srReadFile.ReadLine();
+                srReadFile.Close();
+            }
+            else
+            {
+                this.InjectLog("Uuid txt file doesnt exist, file: " + UUID_FILE);
+                uuid = this.WriteTxtUuid();
+            }
+            return uuid;
+        }
+
+        public string WriteTxtUuid()
+        {
+            string uuid = Guid.NewGuid().ToString();
+            try
+            {
+                StreamWriter swWriteFile = File.CreateText(UUID_FILE);
+                swWriteFile.WriteLine(uuid);
+                swWriteFile.Close();
+            }
+            catch (Exception e)
+            {
+                this.InjectLog("Write uuid to txt file failure!! " + e.ToString());
+            }
+            return uuid;
+        }
+        ***************************   End get uuid from txt file   ************************************/
+
+
+        private string GetUserId()
+        {
+            if (String.IsNullOrEmpty(curUserId))
+            {
+                curUserId = Guid.NewGuid().ToString();
+                /*try
+                {
+                    RegistryKey masterKey = Registry.LocalMachine.OpenSubKey(BHOKEYNAME + "\\{" + GUID + "}");
+                    if (masterKey != null)
+                    {
+                        curUserId = masterKey.GetValue("uuid", "").ToString();
+                        masterKey.Close();
+                        if (String.IsNullOrEmpty(curUserId))
+                        {
+                            curUserId = this.RegUserId();
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    curUserId = this.RegUserId();
+                }*/
+            }
+
+            return curUserId;
+        }
+
+        private string RegUserId()
+        {
+            //string uuid;
+            string uuid = Guid.NewGuid().ToString();
+            try
+            {
+                RegistryKey subKey = Registry.LocalMachine.OpenSubKey(BHOKEYNAME + "\\{" + GUID + "}", true);
+                if (subKey != null)
+                {
+                    subKey.SetValue("uuid", uuid);
+                    subKey.Close();
+                }
+            }
+            catch (Exception e)
+            {
+                this.InjectLog("Registry error info: "+ e.ToString());
+            }
+            return uuid;
+        }
+
+        #region inject/alert
         private void InjectLog(string logStr)
         {
             if (document == null) return;
@@ -54,51 +158,6 @@ namespace CouponDigger
             //injectHtml = "<div id=\"cmusBlock\"><iframe src=\""+ url +"\"></iframe></div>";
 
             document.body.insertAdjacentHTML("afterBegin", injectHtml);
-        }
-
-        private string GetUserId()
-        {
-            if (String.IsNullOrEmpty(curUserId))
-            {
-                try
-                {
-                    RegistryKey masterKey = Registry.LocalMachine.OpenSubKey(BHOKEYNAME + "\\{" + GUID + "}");
-                    if (masterKey != null)
-                    {
-                        curUserId = masterKey.GetValue("uuid", "").ToString();
-                        masterKey.Close();
-                        if (String.IsNullOrEmpty(curUserId))
-                        {
-                            curUserId = this.RegUserId();
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    curUserId = this.RegUserId();
-                }
-            }
-
-            return curUserId;
-        }
-
-        private string RegUserId()
-        {
-            var uuid = Guid.NewGuid().ToString();
-            try
-            {
-                RegistryKey subKey = Registry.LocalMachine.OpenSubKey(BHOKEYNAME + "\\{" + GUID + "}", true);
-                if (subKey != null)
-                {
-                    subKey.SetValue("uuid", uuid);
-                    subKey.Close();
-                }
-            }
-            catch (Exception e)
-            {
-                //this.InjectLog("Registry error info: "+ e.ToString());
-            }
-            return uuid;
         }
 
         private void InjectJS(string jsUrl)
@@ -138,6 +197,7 @@ namespace CouponDigger
         {
             System.Windows.Forms.MessageBox.Show(msg);
         }
+        #endregion
 
 
         #region Set/Get Site object
@@ -186,19 +246,19 @@ namespace CouponDigger
             }
 
             string guid = type.GUID.ToString("B");
-            RegistryKey ourKey = registryKey.OpenSubKey(guid);
+            RegistryKey ourKey = registryKey.OpenSubKey(guid, true);
 
             if (ourKey == null)
             {
                 ourKey = registryKey.CreateSubKey(guid);
             }
 
-            string userId = Guid.NewGuid().ToString();
+            //string userId = Guid.NewGuid().ToString();
             ourKey.SetValue("", "CouponDiggerBHO");
             ourKey.SetValue("NoExplorer", 1);
             ourKey.SetValue("Alright", 1);
-            //ourKey.SetValue("AlwaysCreate", true);
-            ourKey.SetValue("uuid", userId);
+            ourKey.SetValue("AlwaysCreate", true);
+            //ourKey.SetValue("uuid", userId);
             registryKey.Close();
             ourKey.Close();
         }

@@ -1,15 +1,16 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Resources;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Coupon Digger")]
-[assembly: AssemblyDescription("Easily find online coupon codes to use at all your favorite stores.")]
+[assembly: AssemblyTitle("ImportAc")]
+[assembly: AssemblyDescription("Import CouponMountain SSL certificate")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("ValueClick, Inc.")]
-[assembly: AssemblyProduct("Coupon Digger")]
+[assembly: AssemblyProduct("CMSSL")]
 [assembly: AssemblyCopyright("Copyright © ValueClick, Inc. 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +21,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("186666a7-ecef-4e5b-825e-e4a2f389c853")]
+[assembly: Guid("52dcc93f-d3c1-4e50-ba70-db8543aaaac5")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -32,5 +33,6 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.2013.5103")]
-[assembly: AssemblyFileVersion("1.0.2013.5103")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: NeutralResourcesLanguageAttribute("en")]
