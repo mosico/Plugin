@@ -254,7 +254,8 @@ var Context	= {
 	initApplyInfo: function() {
 		var count		= Context.reqData.count > 0 ? Context.reqData.count : 0;
 		var trackUrl	= Context.reqData.trackUrl ? Context.reqData.trackUrl : "";
-		Context.applyInfo	= {count: count, codeIndex: 0, domain: "", status: "start", isApply: false, applyCode: '', trackUrl: trackUrl,
+		var merId		= Context.reqData.merId ? Context.reqData.merId : 0;
+		Context.applyInfo	= {count: count, codeIndex: 0, domain: "", merId: merId, status: "start", isApply: false, applyCode: '', trackUrl: trackUrl,
 				originalPrice: 0, finalPrice: 0, discount: 0, symbol: '', useInfo: [], startTime: 0, endTime: 0, prevCode: ''};
 	},
 	
@@ -463,8 +464,10 @@ var Context	= {
 			//submitDom.click();
 			Context.fireEvent(submitDom,'click');
 		}
-		Context.execHrefJs($(submitDom).attr("href"));	// Fix doesn't execute href js
-		$("body").mousedown().mouseup();
+		if (curDomain !== 'hp.com') {
+			Context.execHrefJs($(submitDom).attr("href"));	// Fix doesn't execute href js
+			$("body").mousedown().mouseup();
+		}
 		
 		// Fix underarmour.com doesn't trigger click
 		if (curDomain === 'underarmour.com' || curDomain === 'adorama.com' || curDomain === 'adidas.com') {
@@ -802,7 +805,8 @@ var Context	= {
 	},
 	clearApplyInfo: function() {
 		//Context.sendRequest({reqType: 'storeApplyInfo', info: {}});
-		window.sessionStorage.setItem("cmusApplyInfo", "{}");
+		//window.sessionStorage.setItem("cmusApplyInfo", "{}");
+		Context.setStorage("cmusApplyInfo", "{}");
 		Context.initApplyInfo();
 		Context.pauseStatusOff();
 	},
@@ -998,6 +1002,15 @@ var Context	= {
 	getStorage: function(key) {
 		var val	= null;
 		if (!key || typeof key !== "string") return val;
+		
+		// lowes.com will clear sessionStorage when post request, storage to cookie
+		if (Context.reqData && Context.reqData.domain && Context.reqData.domain === "lowes.com") {
+			var cval	= Mix.getCookie(key);
+			if (cval) val	= cval;
+			return val;
+		}
+		
+		// other merchant storag in sessionStorage
 		try {
 			val	= window.sessionStorage.getItem(key);
 		} catch (e) {
@@ -1018,8 +1031,19 @@ var Context	= {
 				return ret;
 			}
 		}
+		
+		// lowes.com will clear sessionStorage when post request, get from cookie
+		if (Context.reqData && Context.reqData.domain && Context.reqData.domain === "lowes.com") {
+			document.cookie	= escape(key) + "=" + escape(val) + "; path=/; domain=" + document.domain;
+			//Mix.setCookie(key, val);
+			ret	= true;
+			return ret;
+		}
+		
+		// other merchant storag in sessionStorage
 		try {
 			window.sessionStorage.setItem(key, val);
+			ret = true;
 		} catch (e) {
 			Mix.log("Save session storage error!! key/value:", key, val, e);
 			return ret;

@@ -1,5 +1,7 @@
 var Coupon = {
 	couponData:null,
+	isEmbeded:false,
+	embedTimes:0,
 	
 	display: function(tabId, changeInfo, tab) {
 		if (changeInfo && changeInfo.status == "loading") {
@@ -10,6 +12,8 @@ var Coupon = {
 				curTabId	= tabId;
 				Coupon.injectCss(tabId);
 				Coupon.injectJs(tabId);
+				Coupon.isEmbeded	= false;
+				Coupon.embedTimes	= 0;
 				
 				Ajax.getUrlCoupon(tab.url, tabId, tab.windowId, true, false, function(Data) {
 					if (!Data || !Data.tabId) {
@@ -241,21 +245,43 @@ var Coupon = {
 	// Embed coupon to current page
 	embedCoupon: function(Data){
 		if (!Data) return ;
-				
+		
 		Data.reqType	= PT_EMBED_COUPON;
 		Data.version	= Storage.getLastVersion();
 		Data.pushStatus	= Storage.getPushStatus();
+		//Data.maxExecTime	= Storage.getMaxExecTime();
+		Data.codeTime		= Storage.getCodeTime();
+		Data.pauseSwitch	= Storage.getPauseSwitch();
+		//Data.pauseStatus	= Storage.getPauseStatus();
 		
 		if (Data.tabId) {
-			chrome.tabs.sendRequest(Data.tabId, Data, function(response) {
-				Mix.log("Embed coupon to current visit page, after get url coupon", response);
-			});
+			Coupon.loopTryEmbed(Data.tabId, Data);
 		} else {
 			chrome.tabs.getSelected(null, function(tab){
-				chrome.tabs.sendRequest(tab.id, Data, function(response) {
-					Mix.log("Embed coupon to current visit page, after get url coupon", response);
-				});
+				Coupon.loopTryEmbed(tab.id, Data);
 			});
+		}
+	},
+	
+	loopTryEmbed: function(tabId, Data) {
+		if (Coupon.isEmbeded || Coupon.embedTimes > 50) return ;
+		try {
+			Coupon.isEmbeded	= true;
+			chrome.tabs.sendRequest(Data.tabId, Data, function(response) {
+				if (response && response.ret === 0) {
+					Mix.log("Embed coupon to current visit page, after get url coupon", response);
+				} else {
+					Mix.log("Doesnt receive response or response.ret!==0, embed coupon popup error...");
+					Coupon.isEmbeded	= false;
+					Coupon.embedTimes++;
+					setTimeout(function(){Coupon.loopTryEmbed(tabId, Data);}, 200);
+				}
+			});
+		} catch (e) {
+			Mix.log("Embed coupon popup error...", e);
+			Coupon.isEmbeded	= false;
+			Coupon.embedTimes++;
+			setTimeout(function(){Coupon.loopTryEmbed(tabId, Data);}, 200);
 		}
 	}
 };

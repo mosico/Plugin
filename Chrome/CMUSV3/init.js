@@ -15,6 +15,14 @@ chrome.extension.onRequest.addListener(function(Request, sender, sendResponse) {
 			retVal	= Storage.getApplyInfo();
 			sendResponse(retVal);
 			break;
+		case "logUseInfo":
+			Ajax.sendUseInfo(tabUrl, tabId, {useinfo:Request.info}, function(Data){
+				sendResponse(Data);
+			});
+			break;
+		case "callIframe":
+			Init.callIframe(Request.callUrl);
+			break;
 		case "openLink":
 			chrome.tabs.create({url: Request.tagUrl, active: true});
 			break;
@@ -34,6 +42,10 @@ chrome.extension.onRequest.addListener(function(Request, sender, sendResponse) {
 		case "reloadCoupon":
 			Coupon.reloadCoupon();
 			break;
+		case "savePauseStatus":
+			retVal	= Storage.savePauseStatus(Request.value);
+			sendResponse({ret: retVal});
+			break;
 		default:
 			sendResponse({ret: -1});
 			break;
@@ -46,6 +58,10 @@ var Init = {
 	reqCSSHandle: null,
 	reqPushHandle: null,
 	isFirstExec: true,
+	
+	callIframe: function(url) {
+		$("#bgCallUrl").attr("src", url);
+	},
 	
 	exec: function() {
 		Ajax.getInitFile(curTabUrl, curTabId, function(Res){
@@ -63,13 +79,22 @@ var Init = {
 			
 			if (Init.isFirstExec) {
 				Init.isFirstExec	= false;
-				Init.openTutorial();
+				Init.storeUuid();
+				//Init.openTutorial();
 				Init.saveJsFile();
 				Init.saveCssFile();
 			}
 			
 			Init.setIntevalExec();
 		});
+	},
+	
+	storeUuid: function() {
+		var version	= Storage.getLastVersion();
+		if (!version) {
+			version	= Mix.getVersion();
+			Storage.saveVersion(version);
+		}
 	},
 	
 	setIntevalExec: function() {
