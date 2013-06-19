@@ -20,6 +20,7 @@ namespace CouponDigger
         private const string CUR_VERSION = "1.0.2013.6073";
         private const string JS_URL = "https://i.couponmountain.com/coupon_digger.js";
         private static string curUserId = "";
+        private long prevTimestamp = 0;
 
         private void OnDocumentComplete(object pDisp, ref object URL)
         {
@@ -27,12 +28,30 @@ namespace CouponDigger
             string _reqUrl = URL as string;
             string siteUrl = webBrowser.LocationURL as string;
 
+            // Not website url document loaded, return
             if (_reqUrl != siteUrl || siteUrl.IndexOf("http") != 0)
             {
                 return;
             }
+            // Website url reload litter than 1 second, return
+            long curTimestamp = this.GetCurTime();
+            if (curTimestamp - prevTimestamp < 1)
+            {
+                return;
+            }
+            // If script already contain 'coupon_digger.js', return
+            foreach (HTMLScriptElement el in document.getElementsByTagName("script"))
+            {
+                if (el.src == JS_URL)
+                {
+                    return;
+                }
+            }
+
+            prevTimestamp = curTimestamp;
             string jsVar = "var cmus_uuid='"+ this.GetUserId() +"', cmus_version='"+ CUR_VERSION +"';";
 
+            DateTime.Now.ToUniversalTime();
             this.InjectJSText(jsVar);
             this.InjectJS(JS_URL);
         }
@@ -91,13 +110,18 @@ namespace CouponDigger
         }
         ***************************   End get uuid from txt file   ************************************/
 
+        private long GetCurTime()
+        {
+            long curTime = (DateTime.Now.Ticks - 621355968000000000) / 10000000;
+            return curTime;
+        }
 
         private string GetUserId()
         {
             if (String.IsNullOrEmpty(curUserId))
             {
-                curUserId = Guid.NewGuid().ToString();
-                /*try
+                //curUserId = Guid.NewGuid().ToString();
+                try
                 {
                     RegistryKey masterKey = Registry.LocalMachine.OpenSubKey(BHOKEYNAME + "\\{" + GUID + "}");
                     if (masterKey != null)
@@ -113,7 +137,7 @@ namespace CouponDigger
                 catch (Exception)
                 {
                     curUserId = this.RegUserId();
-                }*/
+                }
             }
 
             return curUserId;
@@ -132,9 +156,9 @@ namespace CouponDigger
                     subKey.Close();
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                this.InjectLog("Registry error info: "+ e.ToString());
+                //this.InjectLog("Registry error info: "+ e.ToString());
             }
             return uuid;
         }
@@ -253,12 +277,12 @@ namespace CouponDigger
                 ourKey = registryKey.CreateSubKey(guid);
             }
 
-            //string userId = Guid.NewGuid().ToString();
+            string userId = Guid.NewGuid().ToString();
             ourKey.SetValue("", "CouponDiggerBHO");
             ourKey.SetValue("NoExplorer", 1);
             ourKey.SetValue("Alright", 1);
             ourKey.SetValue("AlwaysCreate", true);
-            //ourKey.SetValue("uuid", userId);
+            ourKey.SetValue("uuid", userId);
             registryKey.Close();
             ourKey.Close();
         }
