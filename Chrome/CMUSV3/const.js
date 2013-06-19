@@ -56,6 +56,7 @@ var LOG_USE_INFO_URL	= "http://www.couponmountain.com/plugin/adduseinfo.html";
 
 //REQUEST_COUPON_URL	= "http://mamsweb101.dev.wl.mezimedia.com:8081/Coupon/getCoupon.html";
 REQUEST_JS_URL		= "http://dev5.couponmountain.com/js/default/chrome/default_v3.1.js";
+REQUEST_JS_URL		= "http://myweb.com/plugin/default_v3.1-2.js";
 //REQUEST_CSS_URL		= "http://dev5.couponmountain.com/css/default/chrome/default_v3.1.css";
 //LOG_USE_INFO_URL	= "http://mamsweb101.dev.wl.mezimedia.com:8081/Coupon/adduseinfo.html";
 
@@ -81,4 +82,3 @@ var REQUEST_TIMEOUT = 60000;
 // Is injected js/css to content page
 var IS_INJECT_CONTENT_PAGE = false;
 
-var _gaq = _gaq || [];

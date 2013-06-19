@@ -14,6 +14,9 @@ var curApplyTime	= 0;
 var isForceClosed	= false;
 var isPauseApply	= false;
 var explorerType	= '';
+var curShowExecNum	= 0;
+var isApplyingCode	= false;
+var _gaq			= _gaq || [];
 var Context	= {
 	reqData: null,
 	applyInfo: null,
@@ -46,6 +49,8 @@ var Context	= {
 			Context.initPauseStatus();
 			
 			Context.initApplyInfo();
+			
+			GAS.ini();
 			
 			// Ajax load data, loop check xpath data
 			if (Context.reqData.pageRegular.isAjax) {
@@ -89,7 +94,8 @@ var Context	= {
 			var applyType	= Context.reqData.pageRegular.applyType;
 			if (intvTime > 0) Context.intervalTime	= intvTime * 1000;
 			if (applyType !== 'REFLASH') Context.applyType	= applyType;
-			Context.injectDom().autoCheck();
+			Context.injectDom();
+			setTimeout(Context.autoCheck, 500);
 		};
 	},
 	
@@ -301,6 +307,7 @@ var Context	= {
 				Context.applyInfo.startTime		= curTime;
 				Context.applyInfo.prevCode		= Context.getInputCode(Regular.inputXpath);
 				if (!removeDom) {
+					GAS.ev("startExec");
 					Context.trackMerUrl();
 				}
 			} else if (loopTimes > maxLoopTimes) {
@@ -308,6 +315,7 @@ var Context	= {
 				if (!applyCode)	applyCode	= Context.applyInfo.applyCode;
 				
 				function _applyBestCode() {
+					isApplyingCode	= true;
 					if (isPauseApply) return ;
 					// Remove code
 					if (removeDom) {
@@ -320,7 +328,7 @@ var Context	= {
 						Context.execHrefJs($(removeDom).attr("href"));	// Fix doesn't execute href js
 						if (Context.applyType === VERIFY_TYPE_AJAX) setTimeout(loopTry, Context.intervalTime);	// Fix ajax stop
 					} else {
-						Context.saveApplyInfo({isApply: true, applyCode: applyCode});
+						if (!isForceClosed) Context.saveApplyInfo({isApply: true, applyCode: applyCode});
 						Animate.showApply();
 						Context.applyCode(applyCode, Regular.inputXpath, Regular.submitXpath, loopTry);
 					}
@@ -339,11 +347,11 @@ var Context	= {
 				}
 				
 
-				// get final total price, add do some log or output snme message
+				// get final total price, add do some log or output some message
 				var discount	= Context.getPrice(Regular.discountXpath);
-				Context.saveApplyInfo({finalPrice: price, status: "finish", discount: discount});
-				Context.logUseInfo();
+				if (!isForceClosed) Context.saveApplyInfo({finalPrice: price, status: "finish", discount: discount});
 				Animate.showResult();
+				Context.logUseInfo();
 				return ;
 			}
 			
@@ -367,14 +375,14 @@ var Context	= {
 					//$(removeDom).trigger('click');
 					//removeDom.click();
 					Context.fireEvent(removeDom,'click');
-					Context.saveApplyInfo({codeIndex: prevCodeIndex, status: "checking", domain: Data.domain});
+					if (!isForceClosed) Context.saveApplyInfo({codeIndex: prevCodeIndex, status: "checking", domain: Data.domain});
 					Animate.showProcess(true);
 					Context.execHrefJs($(removeDom).attr("href"));	// Fix doesn't execute href js
 					if (Context.applyType === VERIFY_TYPE_AJAX) setTimeout(loopTry, Context.intervalTime);	// Fix ajax stop
 				} else {
 					Context.applyInfo.useInfo.push({couponId: curCoupon.couponId, code: curCoupon.code, price: price, reduce: 0, 
 													isRemove: false, startTime: curTime});
-					Context.saveApplyInfo({codeIndex: loopTimes - 1, status: "checking", domain: Data.domain});
+					if (!isForceClosed) Context.saveApplyInfo({codeIndex: loopTimes - 1, status: "checking", domain: Data.domain});
 					Animate.showProcess();
 					Context.applyCode(curCoupon.code, Regular.inputXpath, Regular.submitXpath, loopTry);
 				}
@@ -652,6 +660,7 @@ var Context	= {
 				// applyInfo.status != 'checking' &&
 				if (applyInfo.status !== 'checking' && Context.applyInfo.status === 'start' && !Context.hasAppendDom) {
 					Animate.showMain();
+					//GAS.pv();
 				}
 				return ;
 			}
@@ -670,6 +679,7 @@ var Context	= {
 //				Animate.showResult();
 				Context.clearApplyInfo();
 				Animate.showMain();
+				//GAS.pv();
 				Mix.log("Don't show result page again when reflash page ...");
 			}
 		});
@@ -817,6 +827,7 @@ var Context	= {
 	},
 	
 	gotoCM: function() {
+		GAS.ev("gotoCM");
 		Context.sendRequest({reqType: 'openLink', tagUrl: 'http://www.couponmountain.com/'});
 	},
 	
@@ -940,31 +951,34 @@ var Context	= {
 	fbShare: function() {
 		var savedText	= Context.getSavedText();
 		var title=encodeURIComponent(savedText);
-		var url=encodeURIComponent("http://www.couponmountain.com/chromePluginTutorial.html");
+		var url=encodeURIComponent("http://www.couponmountain.com/coupondigger.html");
 		var summary=encodeURIComponent("Just one click saves you time and money by finding the best coupon codes at checkout.  Don’t search.  Just save!");
 		var image=encodeURIComponent("http://files.couponmountain.com/add/cd_259.jpg");
 		var left=parseInt(window.innerWidth/2)-320+window.screenX;
 		var top=parseInt(window.innerHeight/2)-175+window.screenY+25;
-
+		
+		GAS.ev('fbShare');
 		window.open('http://www.facebook.com/sharer.php?s=100&p[title]='+title+'&p[summary]='+summary+'&p[url]='+url+'&p[images][0]='+image, 'sharer', 
 				'toolbar=0,status=0,width=620,height=280,left='+left+',top='+top);
 	},
 	
 	twShare: function() {
 		var savedText	= Context.getSavedText();
-		var url=encodeURIComponent("http://www.couponmountain.com/chromePluginTutorial.html");
+		var url=encodeURIComponent("http://www.couponmountain.com/coupondigger.html");
 		var text=encodeURIComponent(savedText);
 		var left=parseInt(window.innerWidth/2)-310+window.screenX;
 		var top=parseInt(window.innerHeight/2)-190+window.screenY+25;
-
+		
+		GAS.ev('twShare');
 		window.open('https://twitter.com/share?url='+url+'&text='+text, 'sharer', 
 				'toolbar=0,status=0,width=572,height=378,left='+left+',top='+top);
 	},
 	
 	sendMail: function() {
+		GAS.ev('sendMail');
 		var savedText	= Context.getSavedText();
 		var subject	= encodeURIComponent(savedText);
-		var body	= encodeURIComponent(savedText +".\r\nhttp://www.couponmountain.com/chromePluginTutorial.html");
+		var body	= encodeURIComponent(savedText +".\r\nhttp://www.couponmountain.com/coupondigger.html");
 		var link	= "mailto:?subject="+subject+"&body="+body;
 		window.location.href = link;
 	},
@@ -1126,6 +1140,7 @@ var Html = {
 		} else if (curNum > count) {
 			curNum = count;
 		}
+		curShowExecNum	= curNum;
 		var processNum	= curNum > 1 ? curNum - 1 : 0.5;
 		var percent		= Math.round(processNum / count * 100);
 		var stopBtn		= '<div class="cmus_process_stop" id="cmus_processStop">Stop Saving</div>';
@@ -1229,12 +1244,25 @@ var Animate = {
 	},
 	hideMain: function(isAutoClose) {
 		$(".cmus_popup_wp").css({display:'none'});
-		Context.clearApplyInfo();
 		isForceClosed	= true;
-//		// Don't show next time
-//		Context.setNoPopup();
 		// If is reflash apply code, don't show popup next time
 		if (isAutoClose === true && Context.applyType === VERIFY_TYPE_REFLASH) Context.setNoPopup();
+		// GA track close event, except auto close
+		if (isAutoClose !== true && typeof this === "object") {
+			var btnName	= '';
+			var btnId	= this.id;
+			var btnCls	= this.className;
+			if (btnId === 'cmus_closeMainBtn') {
+				btnName	= 'no';
+			} else if (btnCls === 'cmus_popup_close') {
+				btnName	= 'close';
+			} else if (btnId === 'cmus_processStop') {
+				btnName	= 'stop';
+			}
+			GAS.ev('close', btnName);
+		}
+		
+		setTimeout(Context.clearApplyInfo, 500);
 	},
 	
 	showResult: function() {
@@ -1245,7 +1273,10 @@ var Animate = {
 		var symbol		= appInfo.symbol ? appInfo.symbol : '$';
 		var innerHtml	= '';
 		if (reduce > 0) {
-			if(!appInfo.discount) Context.applyInfo.discount	= reduce;
+			if(!appInfo.discount) {
+				//Context.applyInfo.discount	= reduce;
+				Context.saveApplyInfo({discount: reduce});
+			}
 			innerHtml	= Html.getCongratulation(symbol+reduce, symbol+origPrice, symbol+finalPrice);
 		} else {
 			if (appInfo.isApply) {
@@ -1307,6 +1338,135 @@ var Animate = {
 		});
 	};
 })(jQuery);
+
+
+var GAS = {
+	ac: 'UA-10767664-4',
+	dn: document.location.host,
+	href: document.location.href,
+	
+	ini: function() {
+		_gaq.push(["_setAccount", GAS.ac]);
+		_gaq.push(["_setDomainName", GAS.dn]);
+		_gaq.push(["_setAllowLinker", true]);
+	},
+	
+	pv: function() {
+		_gaq.push(["_trackPageview"]);
+		Mix.log("Track page view");
+	},
+	
+	ev: function(type, btnName) {
+		var Params	= GAS.getEventParams(type, btnName);
+		_gaq.push(['_trackEvent', Params.cat, Params.act, Params.lab, 1]);
+		console.log("Track event params: ", Params);
+	},
+	
+	getEventParams: function(type, btnName) {
+		var category	= '';
+		var action		= '';
+		var lable		= '';
+		switch (type) {
+			case 'startExec':
+				category	= 'found coupon';
+				action		= 'yes';
+				lable		= GAS.getStartLable();
+				break;
+			case 'close':
+				var status		= Context.applyInfo.status;
+				action			= btnName ? btnName : 'close';
+				if (status === 'start') {
+					category	= 'found coupon';
+					lable		= GAS.getStartLable();
+				} else if (status === 'checking') {
+					if (isApplyingCode === true) {
+						category	= 'use coupon';
+						lable		= GAS.getApplyLable();
+					} else {
+						category	= 'try coupon';
+						lable		= GAS.getTryLable();
+					}
+				} else {
+					var Params	= GAS.getFinishParams();
+					category	= Params.cat;
+					lable		= Params.lab;
+				}
+				break;
+			case 'fbShare':
+				var Params	= GAS.getFinishParams();
+				category	= Params.cat;
+				lable		= Params.lab;
+				action		= 'facebook share';
+				break;
+			case 'twShare':
+				var Params	= GAS.getFinishParams();
+				category	= Params.cat;
+				lable		= Params.lab;
+				action		= 'twitter share';
+				break;
+			case 'sendMail':
+				var Params	= GAS.getFinishParams();
+				category	= Params.cat;
+				lable		= Params.lab;
+				action		= 'email share';
+				break;
+			case 'gotoCM':
+				category	= 'no coupons';
+				action		= 'click';
+				lable		= GAS.getMerName() + ', www.couponmountain.com';
+				break;
+		}
+		return {cat: category, act: action, lab: lable.toLowerCase()};
+	},
+	
+	getMerName: function() {
+		var merName	= Context.reqData.merName;
+		if (merName) {
+			merName	= merName.toLowerCase();
+		} else {
+			merName	= '';
+		}
+		return merName;
+	},
+	
+	getStartLable: function() {
+		var lable	= 'found'+ Context.reqData.count +', '+ GAS.getMerName();
+		return lable;
+	},
+	
+	getTryLable: function() {
+		var lable	= '';
+		lable	= 'coupon-num='+ curShowExecNum +'of'+ Context.reqData.count +', '+ GAS.getMerName();
+		return lable;
+	},
+	
+	getApplyLable: function() {
+		var code		= Context.applyInfo.applyCode;
+		if (!code) code	= Context.applyInfo.useInfo[0].code;
+		var lable		= 'code='+ code +', '+ GAS.getMerName();
+		return lable;
+	},
+	
+	getFinishParams: function() {
+		var category	= '';
+		var lable		= '';
+		var origPrice	= Context.applyInfo.originalPrice;
+		var finalPrice	= Context.applyInfo.finalPrice;
+		var reduce		= Context.getReduce(origPrice, finalPrice);
+		var symbol		= Context.applyInfo.symbol ? Context.applyInfo.symbol : '$';
+		
+		if (reduce > 0) {
+			// Saved money
+			category	= 'savings applied';
+			lable		= 'save='+ symbol + reduce +', latestprice=' + symbol + finalPrice +', '+ GAS.getMerName();
+		} else {
+			// No saved money
+			category	= 'no coupons';
+			lable		= GAS.getMerName();
+		}
+		return {lab: lable, cat: category};
+	}
+};
 
 
 var ApplyInteract	= {
