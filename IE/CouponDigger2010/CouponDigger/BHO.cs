@@ -17,8 +17,8 @@ namespace CouponDigger
         WebBrowser webBrowser;
         HTMLDocument document;
         private const string GUID = "95531B9A-D1C5-4874-A3EE-7819EC33B461";
-        private const string CUR_VERSION = "1.0.2013.5103";
-        private const string JS_URL = "https://myplugin.com/ie/coupon_digger.js";
+        private const string CUR_VERSION = "1.0.2013.6073";
+        private const string JS_URL = "https://i.couponmountain.com/coupon_digger.js";
         private static string curUserId = "";
 
         private void OnDocumentComplete(object pDisp, ref object URL)
